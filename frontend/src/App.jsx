@@ -1,6 +1,7 @@
 import { useState } from "react";
 import "./App.css";
 
+import Login from "./pages/Login";
 import Sidebar from "./components/layout/Sidebar";
 import Navbar from "./components/layout/Navbar";
 
@@ -25,6 +26,7 @@ const statCards = [
 ];
 
 export default function App() {
+  const [role, setRole] = useState(null); // null | "manager" | "sales"
   const [activePage, setActivePage] = useState("dashboard");
   const [darkMode, setDarkMode] = useState(false);
 
@@ -47,6 +49,18 @@ export default function App() {
     setToastVisible(true);
     setTimeout(() => setToastVisible(false), 2500);
   };
+
+  if (!role) {
+    return (
+      <Login
+        onManagerLogin={() => {
+          setRole("manager");
+          setActivePage("dashboard");
+        }}
+        onSalesLogin={() => alert("Sales Representative dashboard coming soon!")}
+      />
+    );
+  }
 
   return (
     <div className={darkMode ? "dark" : ""}>
@@ -213,6 +227,13 @@ export default function App() {
                   <br />
                   <button className="ai-btn" onClick={() => setDarkMode(!darkMode)}>
                     Toggle Dark Mode
+                  </button>
+                  <button
+                    className="ai-btn"
+                    style={{ marginLeft: "12px", background: "#EF4444" }}
+                    onClick={() => setRole(null)}
+                  >
+                    Log Out
                   </button>
                 </div>
               </div>
