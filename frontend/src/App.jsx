@@ -1,64 +1,41 @@
 import { useState } from "react";
 import "./App.css";
 
-const companiesData = [
-  {
-    id: 1,
-    name: "InnovateX",
-    industry: "IT",
-    size: "11-50",
-    trial: "Day 12",
-    score: 92,
-    scoreClass: "high",
-    status: "Active",
-    statusClass: "active",
-  },
-  {
-    id: 2,
-    name: "HealthPlus",
-    industry: "Healthcare",
-    size: "51-200",
-    trial: "Day 4",
-    score: 28,
-    scoreClass: "low",
-    status: "Active",
-    statusClass: "active",
-  },
-  {
-    id: 3,
-    name: "RetailMax",
-    industry: "Retail",
-    size: "201-500",
-    trial: "Expired",
-    score: 64,
-    scoreClass: "medium",
-    status: "Expired",
-    statusClass: "expired",
-  },
-  {
-    id: 4,
-    name: "EduVerse",
-    industry: "Education",
-    size: "11-50",
-    trial: "Converted",
-    score: 97,
-    scoreClass: "high",
-    status: "Paid",
-    statusClass: "converted",
-  },
+import Sidebar from "./components/layout/Sidebar";
+import Navbar from "./components/layout/Navbar";
+
+import Hero from "./components/dashboard/Hero";
+import StatCard from "./components/dashboard/StatCard";
+import Pipeline from "./components/dashboard/Pipeline";
+import Followups from "./components/dashboard/Followups";
+import CompaniesTable from "./components/dashboard/CompaniesTable";
+
+import Drawer from "./components/overlays/Drawer";
+import NotifyPanel from "./components/overlays/NotifyPanel";
+import Copilot from "./components/overlays/Copilot";
+import CompanyModal from "./components/overlays/CompanyModal";
+import EmailModal from "./components/overlays/EmailModal";
+import Toast from "./components/overlays/Toast";
+
+const statCards = [
+  { title: "Trial Users", number: "28", growth: "↑ 12%" },
+  { title: "Conversion Rate", number: "72%", growth: "↑ 5%" },
+  { title: "Revenue Potential", number: "₹1.2L", growth: "↑ 18%" },
+  { title: "Meetings", number: "12", growth: "Today" },
 ];
 
 export default function App() {
   const [activePage, setActivePage] = useState("dashboard");
   const [darkMode, setDarkMode] = useState(false);
+
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerCompany, setDrawerCompany] = useState("InnovateX");
+
   const [notifyOpen, setNotifyOpen] = useState(false);
   const [copilotOpen, setCopilotOpen] = useState(false);
   const [companyModalOpen, setCompanyModalOpen] = useState(false);
   const [emailModalOpen, setEmailModalOpen] = useState(false);
   const [toastVisible, setToastVisible] = useState(false);
-  const [searchValue, setSearchValue] = useState("");
 
   const openDrawer = (name) => {
     setDrawerCompany(name);
@@ -71,215 +48,41 @@ export default function App() {
     setTimeout(() => setToastVisible(false), 2500);
   };
 
-  const filteredCompanies = companiesData.filter((c) =>
-    Object.values(c).join(" ").toLowerCase().includes(searchValue.toLowerCase())
-  );
-
-  const navItems = [
-    { id: "dashboard", label: "🏠 Dashboard" },
-    { id: "companies", label: "🏢 Companies" },
-    { id: "meetings", label: "📅 Meetings" },
-    { id: "activities", label: "📝 Activities" },
-    { id: "insights", label: "🤖 AI Insights" },
-    { id: "reports", label: "📊 Reports" },
-    { id: "settings", label: "⚙ Settings" },
-  ];
-
   return (
     <div className={darkMode ? "dark" : ""}>
       <div className="container">
-        {/* SIDEBAR */}
-        <div className="sidebar">
-          <div className="logo">FlowCRM AI</div>
-          <div className="tagline">Convert Smarter. Grow Faster.</div>
-          <div className="menu">
-            {navItems.map((item) => (
-              <a
-                key={item.id}
-                className={activePage === item.id ? "active nav-link" : "nav-link"}
-                onClick={() => setActivePage(item.id)}
-              >
-                {item.label}
-              </a>
-            ))}
-          </div>
-        </div>
+        <Sidebar activePage={activePage} setActivePage={setActivePage} />
 
-        {/* MAIN */}
         <div className="main">
-          <div className="navbar">
-            <div className="search">
-              <input type="text" placeholder="Search companies, contacts..." />
-            </div>
-            <div className="profile">
-              <div className="notification" onClick={() => setNotifyOpen(!notifyOpen)}>
-                🔔
-              </div>
-              <div className="avatar">SM</div>
-            </div>
-          </div>
+          <Navbar notifyOpen={notifyOpen} setNotifyOpen={setNotifyOpen} />
 
           <div className="content">
             {/* DASHBOARD */}
             {activePage === "dashboard" && (
-              <div className="page active" id="dashboard">
-                <div className="hero">
-                  <h1>Good Morning 👋</h1>
-                  <p>
-                    Welcome back to FlowCRM AI. Monitor trial users, manage customer
-                    relationships, track conversions, and let AI help your sales team
-                    convert more free-trial customers into paying subscribers.
-                  </p>
-                </div>
+              <div className="page active">
+                <Hero />
 
                 <div className="stats">
-                  <div className="stat-card">
-                    <div className="stat-title">Trial Users</div>
-                    <div className="stat-number">28</div>
-                    <div className="stat-growth">↑ 12%</div>
-                  </div>
-                  <div className="stat-card">
-                    <div className="stat-title">Conversion Rate</div>
-                    <div className="stat-number">72%</div>
-                    <div className="stat-growth">↑ 5%</div>
-                  </div>
-                  <div className="stat-card">
-                    <div className="stat-title">Revenue Potential</div>
-                    <div className="stat-number">₹1.2L</div>
-                    <div className="stat-growth">↑ 18%</div>
-                  </div>
-                  <div className="stat-card">
-                    <div className="stat-title">Meetings</div>
-                    <div className="stat-number">12</div>
-                    <div className="stat-growth">Today</div>
-                  </div>
+                  {statCards.map((s) => (
+                    <StatCard key={s.title} {...s} />
+                  ))}
                 </div>
 
                 <div className="dashboard-row">
-                  <div className="pipeline">
-                    <h2>Sales Pipeline</h2>
-                    <div className="pipeline-grid">
-                      <div className="stage">
-                        <h3>Lead</h3>
-                        <div className="deal">
-                          <h4>NovaTech</h4>
-                          <p>New Signup</p>
-                        </div>
-                      </div>
-                      <div className="stage">
-                        <h3>Trial</h3>
-                        <div className="deal">
-                          <h4>HealthPlus</h4>
-                          <p>Day 5</p>
-                        </div>
-                        <div className="deal">
-                          <h4>RetailMax</h4>
-                          <p>Day 8</p>
-                        </div>
-                      </div>
-                      <div className="stage">
-                        <h3>Follow-up</h3>
-                        <div className="deal">
-                          <h4>FinEdge</h4>
-                          <p>Email Scheduled</p>
-                        </div>
-                      </div>
-                      <div className="stage">
-                        <h3>Meeting</h3>
-                        <div className="deal">
-                          <h4>InnovateX</h4>
-                          <p>Tomorrow 11:00 AM</p>
-                        </div>
-                      </div>
-                      <div className="stage">
-                        <h3>Converted</h3>
-                        <div className="deal">
-                          <h4>EduVerse</h4>
-                          <p>Growth Plan</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="followups">
-                    <h2>Upcoming Follow-ups</h2>
-                    <div className="follow-item">
-                      <div className="follow-avatar">AB</div>
-                      <div className="follow-info">
-                        <h4>ABC Technologies</h4>
-                        <p>Meeting Tomorrow</p>
-                      </div>
-                    </div>
-                    <div className="follow-item">
-                      <div className="follow-avatar">HP</div>
-                      <div className="follow-info">
-                        <h4>HealthPlus</h4>
-                        <p>Inactive for 5 Days</p>
-                      </div>
-                    </div>
-                    <div className="follow-item">
-                      <div className="follow-avatar">FE</div>
-                      <div className="follow-info">
-                        <h4>FinEdge</h4>
-                        <p>Upgrade Opportunity</p>
-                      </div>
-                    </div>
-                  </div>
+                  <Pipeline />
+                  <Followups />
                 </div>
 
-                <div className="companies">
-                  <div className="companies-header">
-                    <h2>🏢 Companies</h2>
-                    <div className="company-actions">
-                      <input
-                        type="text"
-                        placeholder="Search company"
-                        id="search"
-                        value={searchValue}
-                        onChange={(e) => setSearchValue(e.target.value)}
-                      />
-                      <button onClick={() => setCompanyModalOpen(true)}>Add Company</button>
-                    </div>
-                  </div>
-                  <table className="company-table">
-                    <thead>
-                      <tr>
-                        <th>Company</th>
-                        <th>Industry</th>
-                        <th>Size</th>
-                        <th>Trial</th>
-                        <th>AI Score</th>
-                        <th>Status</th>
-                        <th></th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filteredCompanies.map((c) => (
-                        <tr key={c.id}>
-                          <td className="company-name">{c.name}</td>
-                          <td>{c.industry}</td>
-                          <td>{c.size}</td>
-                          <td>{c.trial}</td>
-                          <td className={`score ${c.scoreClass}`}>{c.score}%</td>
-                          <td>
-                            <span className={`status ${c.statusClass}`}>{c.status}</span>
-                          </td>
-                          <td>
-                            <button className="view-btn" onClick={() => openDrawer(c.name)}>
-                              View
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                <CompaniesTable
+                  onView={openDrawer}
+                  onAddCompany={() => setCompanyModalOpen(true)}
+                />
               </div>
             )}
 
             {/* MEETINGS */}
             {activePage === "meetings" && (
-              <div className="page active" id="meetings">
+              <div className="page active">
                 <div className="meetings">
                   <h2>📅 Customer Meetings</h2>
                   <br />
@@ -310,7 +113,7 @@ export default function App() {
 
             {/* ACTIVITIES */}
             {activePage === "activities" && (
-              <div className="page active" id="activities">
+              <div className="page active">
                 <div className="activities">
                   <h2>📝 Recent Activities</h2>
                   <div className="timeline">
@@ -340,7 +143,7 @@ export default function App() {
 
             {/* AI INSIGHTS */}
             {activePage === "insights" && (
-              <div className="page active" id="insights">
+              <div className="page active">
                 <div className="ai-insights">
                   <h2>AI Insights</h2>
                   <div className="ai-grid">
@@ -376,7 +179,7 @@ export default function App() {
 
             {/* REPORTS */}
             {activePage === "reports" && (
-              <div className="page active" id="reports">
+              <div className="page active">
                 <div className="reports">
                   <h2>Reports & Analytics</h2>
                   <div className="chart-grid">
@@ -404,7 +207,7 @@ export default function App() {
 
             {/* SETTINGS */}
             {activePage === "settings" && (
-              <div className="page active" id="settings">
+              <div className="page active">
                 <div className="settings">
                   <h2>Settings</h2>
                   <br />
@@ -418,135 +221,26 @@ export default function App() {
         </div>
       </div>
 
-      {/* DRAWER */}
-      <div className={drawerOpen ? "drawer open" : "drawer"} id="drawer">
-        <span className="close" onClick={() => setDrawerOpen(false)}>
-          ✖
-        </span>
-        <h2 id="companyTitle">{drawerCompany}</h2>
-        <p>Healthcare • India • 11-50 Employees</p>
+      <Drawer
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        company={drawerCompany}
+        onGenerateEmail={() => setEmailModalOpen(true)}
+      />
 
-        <div className="drawer-card">
-          <h3>AI Conversion Score</h3>
-          <h1 style={{ color: "#403D88", marginTop: "10px" }}>92%</h1>
-          <p style={{ marginTop: "10px" }}>High engagement and premium feature usage.</p>
-        </div>
+      <NotifyPanel open={notifyOpen} />
 
-        <div className="drawer-card">
-          <h3>Product Usage</h3>
-          <p style={{ marginTop: "12px" }}>Projects Created</p>
-          <div className="progress">
-            <span style={{ width: "85%" }}></span>
-          </div>
-          <p style={{ marginTop: "18px" }}>Collaborators</p>
-          <div className="progress">
-            <span style={{ width: "72%" }}></span>
-          </div>
-          <p style={{ marginTop: "18px" }}>Storage Used</p>
-          <div className="progress">
-            <span style={{ width: "58%" }}></span>
-          </div>
-        </div>
+      <Copilot open={copilotOpen} setOpen={setCopilotOpen} />
 
-        <div className="drawer-card">
-          <h3>AI Recommendation</h3>
-          <p style={{ marginTop: "12px", lineHeight: "1.8" }}>
-            Contact this company within the next 24 hours. Generate a personalized pricing
-            email and schedule an enterprise consultation.
-          </p>
-          <button className="ai-btn" onClick={() => setEmailModalOpen(true)}>
-            Generate Email
-          </button>
-        </div>
-      </div>
+      <CompanyModal
+        open={companyModalOpen}
+        onClose={() => setCompanyModalOpen(false)}
+        onSave={saveCompany}
+      />
 
-      {/* NOTIFICATIONS */}
-      <div className={notifyOpen ? "notify-panel open" : "notify-panel"} id="notify">
-        <h2>Notifications</h2>
-        <br />
-        <div className="notify-item">🔔 HealthPlus inactive for 5 days</div>
-        <div className="notify-item">📅 Meeting with InnovateX tomorrow</div>
-        <div className="notify-item">🚀 EduVerse upgraded to Premium</div>
-      </div>
+      <EmailModal open={emailModalOpen} onClose={() => setEmailModalOpen(false)} />
 
-      {/* COPILOT */}
-      {copilotOpen && (
-        <div className="copilot" style={{ display: "block" }}>
-          <div className="copilot-header">
-            🤖 AI Copilot
-            <span className="close-copilot" onClick={() => setCopilotOpen(false)}>
-              ✖
-            </span>
-          </div>
-          <div className="copilot-body">
-            <div className="chat">
-              <strong>You</strong>
-              <br />
-              Why is InnovateX at 92%?
-            </div>
-            <div className="chat">
-              <strong>AI</strong>
-              <br />
-              InnovateX has high engagement, premium feature usage, and multiple
-              collaborators. I recommend scheduling a pricing meeting tomorrow.
-            </div>
-          </div>
-          <input placeholder="Ask AI anything..." />
-        </div>
-      )}
-
-      {/* ADD COMPANY MODAL */}
-      <div className={companyModalOpen ? "modal show" : "modal"} id="companyModal">
-        <div className="modal-content">
-          <h2>Add Company</h2>
-          <input id="companyName" placeholder="Company Name" />
-          <input placeholder="Industry" />
-          <input placeholder="Company Size" />
-          <input placeholder="Country" />
-          <div className="modal-buttons">
-            <button className="cancel" onClick={() => setCompanyModalOpen(false)}>
-              Cancel
-            </button>
-            <button className="save" onClick={saveCompany}>
-              Save
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* EMAIL MODAL */}
-      <div className={emailModalOpen ? "modal show" : "modal"} id="emailModal">
-        <div className="modal-content">
-          <h2>AI Generated Email</h2>
-          <p>
-            Hi InnovateX Team,
-            <br />
-            <br />
-            We noticed your team has been actively using FlowCRM AI. Based on your recent
-            activity we'd love to schedule a quick demo of our Premium plan. Would Thursday
-            at 11 AM work?
-            <br />
-            Regards,
-            <br />
-            Sales Team
-          </p>
-          <div className="modal-buttons">
-            <button className="save" onClick={() => setEmailModalOpen(false)}>
-              Close
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* TOAST */}
-      <div className="toast" id="toast" style={{ display: toastVisible ? "block" : "none" }}>
-        Company Added Successfully!
-      </div>
-
-      {/* COPILOT FLOATING BUTTON */}
-      <div className="copilot-btn" onClick={() => setCopilotOpen(!copilotOpen)}>
-        🤖
-      </div>
+      <Toast visible={toastVisible} message="Company Added Successfully!" />
     </div>
   );
 }
