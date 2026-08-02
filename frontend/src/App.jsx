@@ -9,6 +9,9 @@ import Insights from "./pages/Insights";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
 
+import SalesDashboard from "./pages/sales/SalesDashboard";
+import SalesReports from "./pages/sales/SalesReports";
+
 import Sidebar from "./components/layout/Sidebar";
 import Navbar from "./components/layout/Navbar";
 
@@ -18,6 +21,32 @@ import Copilot from "./components/overlays/Copilot";
 import CompanyModal from "./components/overlays/CompanyModal";
 import EmailModal from "./components/overlays/EmailModal";
 import Toast from "./components/overlays/Toast";
+
+const managerNavItems = [
+  { id: "dashboard", label: "🏠 Dashboard" },
+  { id: "companies", label: "🏢 Companies" },
+  { id: "meetings", label: "📅 Meetings" },
+  { id: "activities", label: "📝 Activities" },
+  { id: "insights", label: "🤖 AI Insights" },
+  { id: "reports", label: "📊 Reports" },
+  { id: "settings", label: "⚙ Settings" },
+];
+
+const salesNavItems = [
+  { id: "dashboard", label: "🏠 Dashboard" },
+  { id: "companies", label: "🏢 My Companies" },
+  { id: "meetings", label: "📅 My Meetings" },
+  { id: "activities", label: "📝 My Activities" },
+  { id: "insights", label: "🤖 AI Insights" },
+  { id: "reports", label: "📈 My Performance" },
+  { id: "settings", label: "⚙ Settings" },
+];
+
+const salesNotifyItems = [
+  "🔔 Your account HealthPlus is inactive for 5 days",
+  "📅 Your meeting with InnovateX is tomorrow",
+  "🚀 Your deal EduVerse upgraded to Premium",
+];
 
 export default function App() {
   const [role, setRole] = useState(null); // null | "manager" | "sales"
@@ -32,6 +61,8 @@ export default function App() {
   const [companyModalOpen, setCompanyModalOpen] = useState(false);
   const [emailModalOpen, setEmailModalOpen] = useState(false);
   const [toastVisible, setToastVisible] = useState(false);
+
+  const isSales = role === "sales";
 
   const openDrawer = (name) => {
     setDrawerCompany(name);
@@ -51,7 +82,10 @@ export default function App() {
           setRole("manager");
           setActivePage("dashboard");
         }}
-        onSalesLogin={() => alert("Sales Representative dashboard coming soon!")}
+        onSalesLogin={() => {
+          setRole("sales");
+          setActivePage("dashboard");
+        }}
       />
     );
   }
@@ -59,25 +93,48 @@ export default function App() {
   return (
     <div className={darkMode ? "dark" : ""}>
       <div className="container">
-        <Sidebar activePage={activePage} setActivePage={setActivePage} />
+        <Sidebar
+          activePage={activePage}
+          setActivePage={setActivePage}
+          navItems={isSales ? salesNavItems : managerNavItems}
+          tagline={isSales ? "Your accounts. Your quota. Your AI copilot." : "Convert Smarter. Grow Faster."}
+        />
 
         <div className="main">
-          <Navbar notifyOpen={notifyOpen} setNotifyOpen={setNotifyOpen} />
+          <Navbar
+            notifyOpen={notifyOpen}
+            setNotifyOpen={setNotifyOpen}
+            placeholder={isSales ? "Search my companies, contacts..." : "Search companies, contacts..."}
+            avatarInitials={isSales ? "PG" : "SM"}
+          />
 
           <div className="content">
-            {activePage === "dashboard" && (
-              <Dashboard onView={openDrawer} onAddCompany={() => setCompanyModalOpen(true)} />
+            {activePage === "dashboard" &&
+              (isSales ? (
+                <SalesDashboard
+                  onView={openDrawer}
+                  onAddCompany={() => setCompanyModalOpen(true)}
+                />
+              ) : (
+                <Dashboard onView={openDrawer} onAddCompany={() => setCompanyModalOpen(true)} />
+              ))}
+
+            {activePage === "meetings" && (
+              <Meetings title={isSales ? "📅 My Meetings" : "📅 Customer Meetings"} />
             )}
 
-            {activePage === "meetings" && <Meetings />}
-
-            {activePage === "activities" && <Activities />}
+            {activePage === "activities" && (
+              <Activities title={isSales ? "📝 My Recent Activities" : "📝 Recent Activities"} />
+            )}
 
             {activePage === "insights" && (
-              <Insights onGenerateEmail={() => setEmailModalOpen(true)} />
+              <Insights
+                onGenerateEmail={() => setEmailModalOpen(true)}
+                title={isSales ? "🤖 AI Insights for My Accounts" : "AI Insights"}
+              />
             )}
 
-            {activePage === "reports" && <Reports />}
+            {activePage === "reports" && (isSales ? <SalesReports /> : <Reports />)}
 
             {activePage === "settings" && (
               <Settings
@@ -97,7 +154,11 @@ export default function App() {
         onGenerateEmail={() => setEmailModalOpen(true)}
       />
 
-      <NotifyPanel open={notifyOpen} onClose={() => setNotifyOpen(false)} />
+      <NotifyPanel
+        open={notifyOpen}
+        onClose={() => setNotifyOpen(false)}
+        items={isSales ? salesNotifyItems : undefined}
+      />
 
       <Copilot open={copilotOpen} setOpen={setCopilotOpen} />
 
@@ -105,11 +166,15 @@ export default function App() {
         open={companyModalOpen}
         onClose={() => setCompanyModalOpen(false)}
         onSave={saveCompany}
+        title={isSales ? "Add Lead" : "Add Company"}
       />
 
       <EmailModal open={emailModalOpen} onClose={() => setEmailModalOpen(false)} />
 
-      <Toast visible={toastVisible} message="Company Added Successfully!" />
+      <Toast
+        visible={toastVisible}
+        message={isSales ? "Lead Added Successfully!" : "Company Added Successfully!"}
+      />
     </div>
   );
 }

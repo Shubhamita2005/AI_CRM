@@ -1,4 +1,10 @@
-export default function NotifyPanel({ open, onClose }) {
+const managerItems = [
+  "🔔 HealthPlus inactive for 5 days",
+  "📅 Meeting with InnovateX tomorrow",
+  "🚀 EduVerse upgraded to Premium",
+];
+
+export default function NotifyPanel({ open, onClose, items = managerItems }) {
   return (
     <div className={open ? "notify-panel open" : "notify-panel"}>
       <span className="close" onClick={onClose}>
@@ -6,9 +12,11 @@ export default function NotifyPanel({ open, onClose }) {
       </span>
       <h2>Notifications</h2>
       <br />
-      <div className="notify-item">🔔 HealthPlus inactive for 5 days</div>
-      <div className="notify-item">📅 Meeting with InnovateX tomorrow</div>
-      <div className="notify-item">🚀 EduVerse upgraded to Premium</div>
+      {items.map((item) => (
+        <div className="notify-item" key={item}>
+          {item}
+        </div>
+      ))}
     </div>
   );
 }

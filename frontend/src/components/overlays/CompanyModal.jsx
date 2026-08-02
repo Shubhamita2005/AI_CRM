@@ -1,8 +1,8 @@
-export default function CompanyModal({ open, onClose, onSave }) {
+export default function CompanyModal({ open, onClose, onSave, title = "Add Company" }) {
   return (
     <div className={open ? "modal show" : "modal"}>
       <div className="modal-content">
-        <h2>Add Company</h2>
+        <h2>{title}</h2>
         <input placeholder="Company Name" />
         <input placeholder="Industry" />
         <input placeholder="Company Size" />

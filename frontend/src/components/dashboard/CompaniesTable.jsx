@@ -47,21 +47,30 @@ const companiesData = [
   },
 ];
 
-export default function CompaniesTable({ onView, onAddCompany }) {
-  const searchValueState = useSearch();
+export default function CompaniesTable({
+  onView,
+  onAddCompany,
+  title = "🏢 Companies",
+  searchPlaceholder = "Search company",
+  addLabel = "Add Company",
+}) {
+  const [value, setValue] = useState("");
+  const filtered = companiesData.filter((c) =>
+    Object.values(c).join(" ").toLowerCase().includes(value.toLowerCase())
+  );
 
   return (
     <div className="companies">
       <div className="companies-header">
-        <h2>🏢 Companies</h2>
+        <h2>{title}</h2>
         <div className="company-actions">
           <input
             type="text"
-            placeholder="Search company"
-            value={searchValueState.value}
-            onChange={(e) => searchValueState.setValue(e.target.value)}
+            placeholder={searchPlaceholder}
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
           />
-          <button onClick={onAddCompany}>Add Company</button>
+          <button onClick={onAddCompany}>{addLabel}</button>
         </div>
       </div>
       <table className="company-table">
@@ -77,7 +86,7 @@ export default function CompaniesTable({ onView, onAddCompany }) {
           </tr>
         </thead>
         <tbody>
-          {searchValueState.filtered.map((c) => (
+          {filtered.map((c) => (
             <tr key={c.id}>
               <td className="company-name">{c.name}</td>
               <td>{c.industry}</td>
@@ -98,14 +107,4 @@ export default function CompaniesTable({ onView, onAddCompany }) {
       </table>
     </div>
   );
-}
-
-// Small local hook so this component owns its own search state
-// instead of needing it passed down as props.
-function useSearch() {
-  const [value, setValue] = useState("");
-  const filtered = companiesData.filter((c) =>
-    Object.values(c).join(" ").toLowerCase().includes(value.toLowerCase())
-  );
-  return { value, setValue, filtered };
 }

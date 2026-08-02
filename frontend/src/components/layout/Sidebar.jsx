@@ -1,4 +1,4 @@
-const navItems = [
+const defaultNavItems = [
   { id: "dashboard", label: "🏠 Dashboard" },
   { id: "companies", label: "🏢 Companies" },
   { id: "meetings", label: "📅 Meetings" },
@@ -8,11 +8,16 @@ const navItems = [
   { id: "settings", label: "⚙ Settings" },
 ];
 
-export default function Sidebar({ activePage, setActivePage }) {
+export default function Sidebar({
+  activePage,
+  setActivePage,
+  navItems = defaultNavItems,
+  tagline = "Convert Smarter. Grow Faster.",
+}) {
   return (
     <div className="sidebar">
       <div className="logo">FlowCRM AI</div>
-      <div className="tagline">Convert Smarter. Grow Faster.</div>
+      <div className="tagline">{tagline}</div>
       <div className="menu">
         {navItems.map((item) => (
           <a

@@ -4,10 +4,10 @@ const followups = [
   { initials: "FE", name: "FinEdge", note: "Upgrade Opportunity" },
 ];
 
-export default function Followups() {
+export default function Followups({ title = "Upcoming Follow-ups" }) {
   return (
     <div className="followups">
-      <h2>Upcoming Follow-ups</h2>
+      <h2>{title}</h2>
       {followups.map((f) => (
         <div className="follow-item" key={f.initials}>
           <div className="follow-avatar">{f.initials}</div>

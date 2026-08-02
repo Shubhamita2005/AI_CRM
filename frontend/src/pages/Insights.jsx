@@ -1,8 +1,8 @@
-export default function Insights({ onGenerateEmail }) {
+export default function Insights({ onGenerateEmail, title = "AI Insights" }) {
   return (
     <div className="page active">
       <div className="ai-insights">
-        <h2>AI Insights</h2>
+        <h2>{title}</h2>
         <div className="ai-grid">
           <div className="ai-box">
             <h3>InnovateX</h3>

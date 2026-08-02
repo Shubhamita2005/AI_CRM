@@ -4,11 +4,11 @@ const meetingsData = [
   { company: "RetailMax", type: "Follow-up Call", time: "Monday • 10:00 AM" },
 ];
 
-export default function Meetings() {
+export default function Meetings({ title = "📅 Customer Meetings" }) {
   return (
     <div className="page active">
       <div className="meetings">
-        <h2>📅 Customer Meetings</h2>
+        <h2>{title}</h2>
         <br />
         {meetingsData.map((m) => (
           <div className="meeting-card" key={m.company}>

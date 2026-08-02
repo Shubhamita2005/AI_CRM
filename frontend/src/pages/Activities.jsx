@@ -8,11 +8,11 @@ const activityData = [
   { title: "Subscription Converted", note: "EduVerse upgraded to the Growth Plan." },
 ];
 
-export default function Activities() {
+export default function Activities({ title = "📝 Recent Activities" }) {
   return (
     <div className="page active">
       <div className="activities">
-        <h2>📝 Recent Activities</h2>
+        <h2>{title}</h2>
         <div className="timeline">
           {activityData.map((a) => (
             <div className="activity" key={a.title}>

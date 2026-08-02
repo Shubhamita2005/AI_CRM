@@ -24,10 +24,10 @@ const stages = [
   },
 ];
 
-export default function Pipeline() {
+export default function Pipeline({ title = "Sales Pipeline" }) {
   return (
     <div className="pipeline">
-      <h2>Sales Pipeline</h2>
+      <h2>{title}</h2>
       <div className="pipeline-grid">
         {stages.map((stage) => (
           <div className="stage" key={stage.name}>
