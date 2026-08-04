@@ -9,7 +9,7 @@ import Insights from "./pages/Insights";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
 import StageDetail from "./pages/StageDetail";
-import CompanyDetail from "./pages/CompanyDetail";
+import CompanyDetail from "./pages/Companydetail";
 
 import SalesDashboard from "./pages/sales/SalesDashboard";
 import SalesReports from "./pages/sales/SalesReports";
