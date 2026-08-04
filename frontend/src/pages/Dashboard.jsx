@@ -11,7 +11,12 @@ const statCards = [
   { title: "Meetings", number: "12", growth: "Today" },
 ];
 
-export default function Dashboard({ onView, onAddCompany }) {
+export default function Dashboard({
+  onView,
+  onAddCompany,
+  onViewStage,
+  onViewCompany,
+}) {
   return (
     <div className="page active">
       <Hero />
@@ -23,11 +28,18 @@ export default function Dashboard({ onView, onAddCompany }) {
       </div>
 
       <div className="dashboard-row">
-        <Pipeline />
+        <Pipeline
+          title="Sales Pipeline"
+          onViewStage={onViewStage}
+          onViewCompany={onViewCompany}
+        />
         <Followups />
       </div>
 
-      <CompaniesTable onView={onView} onAddCompany={onAddCompany} />
+      <CompaniesTable
+        onView={onView}
+        onAddCompany={onAddCompany}
+      />
     </div>
   );
 }

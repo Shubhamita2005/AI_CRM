@@ -1,3 +1,4 @@
+console.log("SalesDashboard file loaded");
 import Hero from "../../components/dashboard/Hero";
 import StatCard from "../../components/dashboard/StatCard";
 import Pipeline from "../../components/dashboard/Pipeline";
@@ -11,7 +12,15 @@ const statCards = [
   { title: "My Meetings", number: "3", growth: "Today" },
 ];
 
-export default function SalesDashboard({ onView, onAddCompany }) {
+export default function SalesDashboard(props) {
+  console.log("SalesDashboard props:", props);
+
+  const {
+    onViewStage,
+    onViewCompany,
+    onAddCompany,
+  } = props;
+  console.log("SalesDashboard onViewStage:", onViewStage);
   return (
     <div className="page active">
       <Hero
@@ -26,17 +35,21 @@ export default function SalesDashboard({ onView, onAddCompany }) {
       </div>
 
       <div className="dashboard-row">
-        <Pipeline title="My Pipeline" />
+        <Pipeline
+  title="My Pipeline"
+  onViewStage={onViewStage}
+  onViewCompany={onViewCompany}
+/>
         <Followups title="My Follow-ups" />
       </div>
 
       <CompaniesTable
-        onView={onView}
-        onAddCompany={onAddCompany}
-        title="🏢 My Companies"
-        searchPlaceholder="Search my companies"
-        addLabel="Add Lead"
-      />
+  onView={onViewCompany}
+  onAddCompany={onAddCompany}
+  title="🏢 My Companies"
+  searchPlaceholder="Search my companies"
+  addLabel="Add Lead"
+/>
     </div>
   );
 }

@@ -8,6 +8,8 @@ import Activities from "./pages/Activities";
 import Insights from "./pages/Insights";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
+import StageDetail from "./pages/StageDetail";
+import CompanyDetail from "./pages/CompanyDetail";
 
 import SalesDashboard from "./pages/sales/SalesDashboard";
 import SalesReports from "./pages/sales/SalesReports";
@@ -53,6 +55,11 @@ export default function App() {
   const [activePage, setActivePage] = useState("dashboard");
   const [darkMode, setDarkMode] = useState(false);
 
+  // pageView overrides normal page content — used for the pipeline
+  // "stage" drill-down and "company" detail drill-down.
+  // shape: { type: "stage", stage } | { type: "company", company } | null
+  const [pageView, setPageView] = useState(null);
+
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerCompany, setDrawerCompany] = useState("InnovateX");
 
@@ -69,12 +76,22 @@ export default function App() {
     setDrawerOpen(true);
   };
 
+  const viewStage = (stageName) => setPageView({ type: "stage", stage: stageName });
+  const viewCompany = (companyName) => setPageView({ type: "company", company: companyName });
+  const backToDashboard = () => setPageView(null);
+
+  const goToPage = (page) => {
+    setPageView(null);
+    setActivePage(page);
+  };
+
   const saveCompany = () => {
     setCompanyModalOpen(false);
     setToastVisible(true);
     setTimeout(() => setToastVisible(false), 2500);
   };
 
+  
   if (!role) {
     return (
       <Login
@@ -89,13 +106,14 @@ export default function App() {
       />
     );
   }
+  
 
   return (
     <div className={darkMode ? "dark" : ""}>
       <div className="container">
         <Sidebar
           activePage={activePage}
-          setActivePage={setActivePage}
+          setActivePage={goToPage}
           navItems={isSales ? salesNavItems : managerNavItems}
           tagline={isSales ? "Your accounts. Your quota. Your AI copilot." : "Convert Smarter. Grow Faster."}
         />
@@ -109,34 +127,50 @@ export default function App() {
           />
 
           <div className="content">
-            {activePage === "dashboard" &&
-              (isSales ? (
-                <SalesDashboard
-                  onView={openDrawer}
-                  onAddCompany={() => setCompanyModalOpen(true)}
-                />
-              ) : (
-                <Dashboard onView={openDrawer} onAddCompany={() => setCompanyModalOpen(true)} />
-              ))}
+            {pageView?.type === "stage" && (
+              <StageDetail stage={pageView.stage} onBack={backToDashboard} onViewCompany={viewCompany} />
+            )}
 
-            {activePage === "meetings" && (
+            {pageView?.type === "company" && (
+              <CompanyDetail
+                companyName={pageView.company}
+                onBack={backToDashboard}
+                onGenerateEmail={() => setEmailModalOpen(true)}
+              />
+            )}
+            {!pageView && activePage === "dashboard" &&
+  (isSales ? (
+    <SalesDashboard
+      onAddCompany={() => setCompanyModalOpen(true)}
+      onViewStage={viewStage}
+      onViewCompany={viewCompany}
+    />
+  ) : (
+    <Dashboard
+      onView={openDrawer}
+      onAddCompany={() => setCompanyModalOpen(true)}
+      onViewStage={viewStage}
+      onViewCompany={viewCompany}
+    />
+  ))}
+            {!pageView && activePage === "meetings" && (
               <Meetings title={isSales ? "📅 My Meetings" : "📅 Customer Meetings"} />
             )}
 
-            {activePage === "activities" && (
+            {!pageView && activePage === "activities" && (
               <Activities title={isSales ? "📝 My Recent Activities" : "📝 Recent Activities"} />
             )}
 
-            {activePage === "insights" && (
+            {!pageView && activePage === "insights" && (
               <Insights
                 onGenerateEmail={() => setEmailModalOpen(true)}
                 title={isSales ? "🤖 AI Insights for My Accounts" : "AI Insights"}
               />
             )}
 
-            {activePage === "reports" && (isSales ? <SalesReports /> : <Reports />)}
+            {!pageView && activePage === "reports" && (isSales ? <SalesReports /> : <Reports />)}
 
-            {activePage === "settings" && (
+            {!pageView && activePage === "settings" && (
               <Settings
                 darkMode={darkMode}
                 setDarkMode={setDarkMode}

@@ -397,6 +397,8 @@ body {
   background: #f8f8fb;
   border-radius: 16px;
   padding: 14px;
+  display: flex;
+  flex-direction: column;
 }
 
 .stage h3,
@@ -1232,4 +1234,28 @@ LOGIN PAGE
   font-size: 13px;
   font-weight: 600;
   color: var(--primary);
+}
+
+.more-btn-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 12px;
+}
+
+.more-btn {
+  background: linear-gradient(135deg, #5B4BDB, #6D5EF8);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 8px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 12px rgba(91, 75, 219, 0.25);
+}
+
+.more-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(91, 75, 219, 0.35);
 }
