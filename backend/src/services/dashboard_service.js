@@ -1,12 +1,53 @@
 const pool = require("../config/database");
 
 const getDashboardStats = async () => {
-  const result = await pool.query(`
-    SELECT COUNT(*) AS "trialUsers"
-    FROM free_trials;
-  `);
 
-  return result.rows[0];
+    // Trial Users
+    const trialResult = await pool.query(`
+        SELECT COUNT(*) AS count
+        FROM free_trials;
+    `);
+
+    // Pending Follow-ups (your "Meetings" card for now)
+    const pendingResult = await pool.query(`
+        SELECT COUNT(*) AS count
+        FROM followup_recommendations
+        WHERE status = 'Pending';
+    `);
+
+    // Revenue Potential
+    // Assuming premium plan price = ₹999
+    const revenueResult = await pool.query(`
+        SELECT
+            COALESCE(
+                SUM((estimated_conversion_probability / 100.0) * 999),
+                0
+            ) AS revenue
+        FROM followup_recommendations;
+    `);
+
+    // Conversion Rate
+    // You don't have subscriptions yet, so return 0.
+     const subscriptionResult = await pool.query(`
+        SELECT COUNT(*) AS count
+        FROM subscriptions
+        WHERE subscription_status = 'Active';
+    `);
+    const trialUsers = Number(trialResult.rows[0].count);
+         const activeSubscriptions = Number(subscriptionResult.rows[0].count);
+        
+         const conversionRate =
+        trialUsers === 0
+            ? 0
+            : ((activeSubscriptions / trialUsers) * 100).toFixed(1);
+
+
+    return {
+        trialUsers: Number(trialResult.rows[0].count),
+        conversionRate: Number(conversionRate),
+        revenuePotential: Math.round(revenueResult.rows[0].revenue),
+        meetings: Number(pendingResult.rows[0].count)
+    };
 };
 
 const getLeads = async () => {
@@ -34,8 +75,38 @@ const getTrialUsers = async () => {
 
     return result.rows;
 };
+
+const getRecommendations = async () => {
+
+    const result = await pool.query(`
+        SELECT
+            fr.recommendation_id,
+            fr.customer_id,
+            c.company_name,
+            c.first_name,
+            c.last_name,
+            fr.recommended_action,
+            fr.priority,
+            fr.reason,
+            fr.confidence_score,
+            fr.estimated_conversion_probability,
+            fr.recommended_timeframe,
+            fr.status,
+            fr.generated_at
+
+        FROM followup_recommendations fr
+
+        INNER JOIN customers c
+            ON fr.customer_id = c.customer_id
+
+        ORDER BY fr.generated_at DESC;
+    `);
+
+    return result.rows;
+};
 module.exports = {
   getDashboardStats,
   getLeads,
   getTrialUsers,
+  getRecommendations
 };

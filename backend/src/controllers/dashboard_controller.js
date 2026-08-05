@@ -42,8 +42,29 @@ const getTrialUsers = async (req, res) => {
     }
 };
 
+const getRecommendations = async (req, res) => {
+
+    try {
+
+        const recommendations =
+            await dashboardService.getRecommendations();
+
+        res.status(200).json(recommendations);
+
+    } catch (error) {
+
+        console.error(error);
+
+        res.status(500).json({
+            message: "Failed to fetch recommendations."
+        });
+
+    }
+
+};
 module.exports = {
   getDashboardStats,
   getLeads,
   getTrialUsers,
+  getRecommendations
 };
