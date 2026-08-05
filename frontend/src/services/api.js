@@ -46,10 +46,12 @@ export const companiesAPI = {
 
 // Pipeline/Stages API
 export const pipelineAPI = {
-  getStages: () => fetchAPI("/pipeline/stages"),
-  getStageDeals: (stageName) => fetchAPI(`/pipeline/stages/${encodeURIComponent(stageName)}`),
+  getStages: () => fetchAPI("/dashboard/pipeline"),
+  getStageDeals: (stageName) =>
+    fetchAPI(`/dashboard/pipeline/${encodeURIComponent(stageName)}`),
+
   moveDeal: (dealId, newStage) =>
-    fetchAPI("/pipeline/move", {
+    fetchAPI("/dashboard/pipeline/move", {
       method: "POST",
       body: JSON.stringify({ dealId, newStage }),
     }),
