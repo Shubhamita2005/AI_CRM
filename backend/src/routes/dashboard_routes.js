@@ -8,4 +8,5 @@ router.get("/stats", dashboardController.getDashboardStats);
 router.get("/leads", dashboardController.getLeads);
 router.get("/trial-users", dashboardController.getTrialUsers);
 router.get("/recommendations", dashboardController.getRecommendations);
+router.get("/pipeline",dashboardController.getPipelineStages);
 module.exports = router;

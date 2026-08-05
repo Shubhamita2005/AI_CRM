@@ -104,9 +104,42 @@ const getRecommendations = async () => {
 
     return result.rows;
 };
+const getPipelineStages = async () => {
+
+    const leads = await getLeads();
+
+    const trials = await getTrialUsers();
+
+    const recommendations = await getRecommendations();
+
+    return [
+        {
+            name: "Lead",
+            deals: leads.map(lead => ({
+                company: lead.company_name,
+                note: lead.full_name
+            }))
+        },
+        {
+            name: "Trial",
+            deals: trials.map(trial => ({
+                company: trial.company_name,
+                note: trial.full_name
+            }))
+        },
+        {
+            name: "Follow-up",
+            deals: recommendations.map(rec => ({
+                company: rec.company_name,
+                note: rec.recommended_action
+            }))
+        }
+    ];
+};
 module.exports = {
   getDashboardStats,
   getLeads,
   getTrialUsers,
-  getRecommendations
+  getRecommendations,
+  getPipelineStages
 };

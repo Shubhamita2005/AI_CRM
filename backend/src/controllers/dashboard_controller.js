@@ -62,9 +62,30 @@ const getRecommendations = async (req, res) => {
     }
 
 };
+const getPipelineStages = async (req, res) => {
+
+    try {
+
+        const stages = await dashboardService.getPipelineStages();
+
+        res.status(200).json(stages);
+
+    } catch (error) {
+
+        console.error(error);
+
+        res.status(500).json({
+            message: "Failed to fetch pipeline."
+        });
+
+    }
+
+};
+
 module.exports = {
   getDashboardStats,
   getLeads,
   getTrialUsers,
-  getRecommendations
+  getRecommendations,
+  getPipelineStages
 };
