@@ -3,8 +3,6 @@ const defaultNavItems = [
   { id: "companies", label: "🏢 Companies" },
   { id: "meetings", label: "📅 Meetings" },
   { id: "activities", label: "📝 Activities" },
-  { id: "insights", label: "🤖 AI Insights" },
-  { id: "reports", label: "📊 Reports" },
   { id: "settings", label: "⚙ Settings" },
 ];
 

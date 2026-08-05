@@ -1,42 +1,5 @@
-const stages = [
-  {
-    name: "Lead",
-    deals: [
-      { company: "NovaTech", note: "New Signup" },
-      { company: "BrightWave", note: "New Signup" },
-      { company: "Skyline Retail", note: "Free Trial Started" },
-      { company: "ABC Technologies", note: "Contact Pending" },
-      { company: "CodeCraft", note: "Demo Requested" },
-    ],
-  },
-  {
-    name: "Trial",
-    deals: [
-      { company: "HealthPlus", note: "Day 5" },
-      { company: "RetailMax", note: "Day 8" },
-    ],
-  },
-  {
-    name: "Follow-up",
-    deals: [
-      { company: "FinEdge", note: "Email Scheduled" },
-      { company: "Orbit Labs", note: "Call Scheduled" },
-    ],
-  },
-  {
-    name: "Meeting",
-    deals: [
-      { company: "InnovateX", note: "Tomorrow 11:00 AM" },
-    ],
-  },
-  {
-    name: "Converted",
-    deals: [
-      { company: "EduVerse", note: "Growth Plan" },
-      { company: "Nimbus Health", note: "Growth Plan" },
-    ],
-  },
-];
+import { useState, useEffect } from "react";
+import { pipelineAPI } from "../../services/api";
 
 console.log("Pipeline file loaded");
 
@@ -49,6 +12,73 @@ export default function Pipeline(props) {
     onViewCompany,
   } = props;
 
+  const [stages, setStages] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Fetch stages from backend on component mount
+  useEffect(() => {
+    fetchStages();
+  }, []);
+
+  const fetchStages = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await pipelineAPI.getStages();
+      setStages(data);
+      console.log("Pipeline stages loaded:", data);
+    } catch (err) {
+      console.error("Failed to load pipeline stages:", err);
+      setError("Failed to load pipeline data");
+      // Fallback to empty stages if API fails
+      setStages([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="pipeline">
+        <h2>{title}</h2>
+        <p style={{ textAlign: "center", color: "var(--gray)", padding: "40px" }}>
+          Loading pipeline...
+        </p>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="pipeline">
+        <h2>{title}</h2>
+        <p style={{ textAlign: "center", color: "red", padding: "20px" }}>
+          {error}
+        </p>
+        <div style={{ textAlign: "center" }}>
+          <button className="ai-btn" onClick={fetchStages}>
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Empty state
+  if (stages.length === 0) {
+    return (
+      <div className="pipeline">
+        <h2>{title}</h2>
+        <p style={{ textAlign: "center", color: "var(--gray)", padding: "40px" }}>
+          No pipeline data available
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="pipeline">
       <h2>{title}</h2>
@@ -59,9 +89,9 @@ export default function Pipeline(props) {
             <h3>{stage.name}</h3>
 
             {/* Show only first 2 companies */}
-            {stage.deals.slice(0, 2).map((deal) => (
+            {stage.deals && stage.deals.slice(0, 2).map((deal) => (
               <div
-                key={deal.company}
+                key={deal.company || deal._id}
                 className="deal"
                 style={{ cursor: "pointer" }}
                 onClick={() => {
@@ -76,7 +106,7 @@ export default function Pipeline(props) {
             ))}
 
             {/* More button */}
-            {stage.deals.length > 2 && (
+            {stage.deals && stage.deals.length > 2 && (
               <button
                 className="more-btn"
                 onClick={() => {
@@ -93,6 +123,13 @@ export default function Pipeline(props) {
               >
                 View All
               </button>
+            )}
+
+            {/* Show count if no deals */}
+            {(!stage.deals || stage.deals.length === 0) && (
+              <p style={{ color: "var(--gray)", fontSize: "14px", padding: "10px" }}>
+                No deals in this stage
+              </p>
             )}
           </div>
         ))}

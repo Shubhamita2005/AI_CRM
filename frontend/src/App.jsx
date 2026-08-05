@@ -5,8 +5,6 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Meetings from "./pages/Meetings";
 import Activities from "./pages/Activities";
-import Insights from "./pages/Insights";
-import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
 import StageDetail from "./pages/StageDetail";
 import CompanyDetail from "./pages/Companydetail";
@@ -29,8 +27,6 @@ const managerNavItems = [
   { id: "companies", label: "🏢 Companies" },
   { id: "meetings", label: "📅 Meetings" },
   { id: "activities", label: "📝 Activities" },
-  { id: "insights", label: "🤖 AI Insights" },
-  { id: "reports", label: "📊 Reports" },
   { id: "settings", label: "⚙ Settings" },
 ];
 
@@ -39,8 +35,6 @@ const salesNavItems = [
   { id: "companies", label: "🏢 My Companies" },
   { id: "meetings", label: "📅 My Meetings" },
   { id: "activities", label: "📝 My Activities" },
-  { id: "insights", label: "🤖 AI Insights" },
-  { id: "reports", label: "📈 My Performance" },
   { id: "settings", label: "⚙ Settings" },
 ];
 
@@ -159,13 +153,6 @@ export default function App() {
 
             {!pageView && activePage === "activities" && (
               <Activities title={isSales ? "📝 My Recent Activities" : "📝 Recent Activities"} />
-            )}
-
-            {!pageView && activePage === "insights" && (
-              <Insights
-                onGenerateEmail={() => setEmailModalOpen(true)}
-                title={isSales ? "🤖 AI Insights for My Accounts" : "AI Insights"}
-              />
             )}
 
             {!pageView && activePage === "reports" && (isSales ? <SalesReports /> : <Reports />)}
