@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { companiesAPI } from "../services/api";
 
 export default function CompanyDetail({
-  companyId,  // ✅ Changed from companyName
+  companyId,
   onBack,
   onGenerateEmail,
 }) {
@@ -20,10 +20,10 @@ export default function CompanyDetail({
     try {
       setLoading(true);
       setError(null);
-      
-      // ✅ Fetch company details by ID
+
       const response = await companiesAPI.getCompanyDetails(companyId);
       console.log("Company details:", response);
+
       setData(response);
     } catch (err) {
       console.error("Failed to load company details:", err);
@@ -34,6 +34,7 @@ export default function CompanyDetail({
     }
   };
 
+  /* ================= LOADING ================= */
   if (loading) {
     return (
       <div className="page active">
@@ -44,7 +45,7 @@ export default function CompanyDetail({
               ← Back
             </button>
           </div>
-          <p style={{ textAlign: "center", color: "var(--gray)", padding: "40px" }}>
+          <p style={{ textAlign: "center", padding: "40px", color: "var(--gray)" }}>
             Loading company details...
           </p>
         </div>
@@ -52,7 +53,8 @@ export default function CompanyDetail({
     );
   }
 
-  if (error || !data) {
+  /* ================= ERROR ================= */
+  if (error || !data || !data.customer) {
     return (
       <div className="page active">
         <div className="companies">
@@ -63,12 +65,12 @@ export default function CompanyDetail({
             </button>
           </div>
 
-          <p style={{ color: "var(--gray)", padding: "40px" }}>
-            {error || "Detailed information for this company isn't available yet."}
+          <p style={{ padding: "40px", color: "var(--gray)" }}>
+            {error || "No company data available."}
           </p>
-          
-          <button 
-            className="ai-btn" 
+
+          <button
+            className="ai-btn"
             onClick={fetchCompanyDetails}
             style={{ marginLeft: "40px" }}
           >
@@ -78,6 +80,8 @@ export default function CompanyDetail({
       </div>
     );
   }
+
+  /* ================= DATA ================= */
 
   const { customer, activities, followupHistory, recommendation } = data;
 
@@ -95,7 +99,7 @@ export default function CompanyDetail({
           {customer.industry} • {customer.country} • {customer.company_size} Employees
         </p>
 
-        {/* Customer Info Card */}
+        {/* ================= CONTACT INFO ================= */}
         <div className="drawer-card">
           <h3>👤 Contact Information</h3>
           <p style={{ marginTop: "10px" }}>
@@ -106,134 +110,190 @@ export default function CompanyDetail({
           </p>
         </div>
 
-        {/* Trial Status Card */}
+        {/* ================= TRIAL STATUS ================= */}
         <div className="drawer-card">
           <h3>🎯 Trial Status</h3>
           <p style={{ marginTop: "10px" }}>
             <strong>Status:</strong>{" "}
-            <span style={{ 
-              color: customer.trial_status === "Active" ? "#10b981" : "#ef4444",
-              fontWeight: "600"
-            }}>
+            <span
+              style={{
+                color: customer.trial_status === "Active" ? "#10b981" : "#ef4444",
+                fontWeight: "600",
+              }}
+            >
               {customer.trial_status}
             </span>
           </p>
+
           <p style={{ marginTop: "8px" }}>
-            <strong>Trial Period:</strong> {new Date(customer.trial_start_date).toLocaleDateString()} - {new Date(customer.trial_end_date).toLocaleDateString()}
+            <strong>Trial Period:</strong>{" "}
+            {new Date(customer.trial_start_date).toLocaleDateString()} –{" "}
+            {new Date(customer.trial_end_date).toLocaleDateString()}
           </p>
+
           <p style={{ marginTop: "8px" }}>
-            <strong>Days Active:</strong> {customer.days_active} days
+            <strong>Days Active:</strong> {customer.days_active}
           </p>
+          
           <p style={{ marginTop: "8px" }}>
-            <strong>Current Streak:</strong> {customer.current_streak} days
+            <strong>Current Streak:</strong> {customer.current_streak}
           </p>
         </div>
 
-        {/* Product Usage */}
+        {/* ================= PRODUCT USAGE ================= */}
         <div className="drawer-card">
           <h3>📊 Product Usage</h3>
 
-          <p style={{ marginTop: "12px" }}>Total Logins: <strong>{customer.total_logins}</strong></p>
-          
-          <p style={{ marginTop: "12px" }}>Projects Created</p>
-          <div className="progress">
-            <span style={{ width: `${Math.min((customer.projects_created / 20) * 100, 100)}%` }}></span>
-          </div>
-          <p style={{ fontSize: "12px", marginTop: "4px", color: "var(--gray)" }}>
-            {customer.projects_created} projects
-          </p>
+          <div style={{ marginTop: "12px" }}>
+            <div className="usage-row" style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: "1px solid #eee" }}>
+              <span>Total Logins</span>
+              <strong>{customer.total_logins}</strong>
+            </div>
 
-          <p style={{ marginTop: "18px" }}>Collaborators Invited</p>
-          <div className="progress">
-            <span style={{ width: `${Math.min((customer.collaborators_invited / 30) * 100, 100)}%` }}></span>
-          </div>
-          <p style={{ fontSize: "12px", marginTop: "4px", color: "var(--gray)" }}>
-            {customer.collaborators_invited} collaborators
-          </p>
+            <div className="usage-row" style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: "1px solid #eee" }}>
+              <span>Projects Created</span>
+              <strong>{customer.projects_created}</strong>
+            </div>
 
-          <p style={{ marginTop: "18px" }}>Storage Used</p>
-          <div className="progress">
-            <span style={{ width: `${Math.min((parseFloat(customer.storage_used_gb) / 20) * 100, 100)}%` }}></span>
-          </div>
-          <p style={{ fontSize: "12px", marginTop: "4px", color: "var(--gray)" }}>
-            {customer.storage_used_gb} GB
-          </p>
+            <div className="usage-row" style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: "1px solid #eee" }}>
+              <span>Collaborators Invited</span>
+              <strong>{customer.collaborators_invited}</strong>
+            </div>
 
-          <p style={{ marginTop: "18px" }}>
-            <strong>Premium Features Used:</strong>{" "}
-            <span style={{ color: customer.premium_features_used ? "#10b981" : "#ef4444" }}>
-              {customer.premium_features_used ? "Yes" : "No"}
-            </span>
-          </p>
+            <div className="usage-row" style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: "1px solid #eee" }}>
+              <span>Storage Used</span>
+              <strong>{customer.storage_used_gb} GB</strong>
+            </div>
+
+            <div className="usage-row" style={{ display: "flex", justifyContent: "space-between", padding: "8px 0" }}>
+              <span>Premium Features Used</span>
+              <strong>
+                {customer.premium_features_used ? "Yes ✅" : "No ❌"}
+              </strong>
+            </div>
+          </div>
         </div>
 
-        {/* Recent Activities */}
+        {/* ================= RECENT ACTIVITIES ================= */}
         {activities && activities.length > 0 && (
           <div className="drawer-card">
             <h3>📝 Recent Activities</h3>
+
             <div style={{ marginTop: "15px" }}>
               {activities.slice(0, 5).map((activity, index) => (
-                <div 
-                  key={index} 
-                  style={{ 
-                    padding: "10px 0", 
-                    borderBottom: index < 4 ? "1px solid #eee" : "none" 
+                <div
+                  key={index}
+                  style={{
+                    padding: "10px 0",
+                    borderBottom: index < 4 ? "1px solid #eee" : "none",
                   }}
                 >
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start" }}>
-                    <div>
-                      <strong style={{ fontSize: "14px" }}>{activity.activity_type.replace(/_/g, " ")}</strong>
-                      <p style={{ fontSize: "13px", color: "var(--gray)", marginTop: "4px" }}>
-                        {activity.details}
-                      </p>
-                    </div>
-                    <span style={{ fontSize: "12px", color: "var(--gray)", whiteSpace: "nowrap", marginLeft: "10px" }}>
-                      {new Date(activity.activity_time).toLocaleDateString()}
-                    </span>
-                  </div>
+                  <strong style={{ fontSize: "14px" }}>
+                    {activity.activity_type.replace(/_/g, " ")}
+                  </strong>
+
+                  <p style={{ fontSize: "13px", color: "var(--gray)", marginTop: "4px" }}>
+                    {activity.details}
+                  </p>
+
+                  <small style={{ color: "var(--gray)", fontSize: "12px" }}>
+                    {new Date(activity.activity_time).toLocaleDateString()}
+                  </small>
                 </div>
               ))}
             </div>
           </div>
         )}
 
-        {/* Follow-up History */}
+        {/* ================= FOLLOWUP HISTORY ================= */}
         {followupHistory && followupHistory.length > 0 && (
           <div className="drawer-card">
-            <h3>📞 Follow-up History</h3>
+            <h3>📞 Follow‑up History</h3>
+
             <div style={{ marginTop: "15px" }}>
               {followupHistory.map((followup, index) => (
                 <div key={index} style={{ marginBottom: "15px" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                     <strong>{followup.followup_type}</strong>
-                    <span style={{ 
-                      fontSize: "12px",
-                      padding: "4px 10px",
-                      borderRadius: "12px",
-                      background: followup.followup_status === "COMPLETED" ? "#e8f5e9" : "#fff8e1",
-                      color: followup.followup_status === "COMPLETED" ? "#2e7d32" : "#f57c00"
-                    }}>
+                    <span
+                      style={{
+                        fontSize: "12px",
+                        padding: "4px 10px",
+                        borderRadius: "12px",
+                        background: followup.followup_status === "COMPLETED" ? "#e8f5e9" : "#fff8e1",
+                        color: followup.followup_status === "COMPLETED" ? "#2e7d32" : "#f57c00",
+                      }}
+                    >
                       {followup.followup_status}
                     </span>
                   </div>
+
                   <p style={{ fontSize: "13px", color: "var(--gray)", marginTop: "8px" }}>
                     {followup.notes}
                   </p>
-                  <p style={{ fontSize: "12px", color: "var(--gray)", marginTop: "4px" }}>
+
+                  <small style={{ fontSize: "12px", color: "var(--gray)" }}>
                     {new Date(followup.followup_date).toLocaleDateString()}
-                  </p>
+                  </small>
                 </div>
               ))}
             </div>
           </div>
         )}
 
-        {/* AI Recommendation */}
+        {/* ================= AI RECOMMENDATION ================= */}
         <div className="drawer-card">
           <h3>💡 AI Recommendation</h3>
-          <p style={{ marginTop: "12px", lineHeight: "1.8" }}>
-            {recommendation || "Check in quarterly and look for upsell opportunities as their team grows."}
-          </p>
+
+          {recommendation && typeof recommendation === "object" ? (
+            <div style={{ marginTop: "12px" }}>
+              <p style={{ marginBottom: "10px" }}>
+                <strong>Action:</strong> {recommendation.recommended_action}
+              </p>
+
+              <p style={{ marginBottom: "10px" }}>
+                <strong>Reason:</strong> {recommendation.reason}
+              </p>
+
+              <p style={{ marginBottom: "10px" }}>
+                <strong>Priority:</strong>{" "}
+                <span
+                  style={{
+                    color:
+                      recommendation.priority === "High"
+                        ? "#ef4444"
+                        : recommendation.priority === "Medium"
+                        ? "#f59e0b"
+                        : "#10b981",
+                    fontWeight: "600",
+                  }}
+                >
+                  {recommendation.priority}
+                </span>
+              </p>
+
+              <p style={{ marginBottom: "10px" }}>
+                <strong>Confidence:</strong> {recommendation.confidence_score}%
+              </p>
+
+              <p style={{ marginBottom: "10px" }}>
+                <strong>Conversion Probability:</strong>{" "}
+                {recommendation.estimated_conversion_probability}%
+              </p>
+
+              <p style={{ marginBottom: "10px" }}>
+                <strong>Timeframe:</strong> {recommendation.recommended_timeframe}
+              </p>
+
+              <p>
+                <strong>Status:</strong> {recommendation.status}
+              </p>
+            </div>
+          ) : (
+            <p style={{ marginTop: "12px", lineHeight: "1.8" }}>
+              {recommendation || "Check in quarterly and look for upsell opportunities as their team grows."}
+            </p>
+          )}
 
           <button
             className="ai-btn"

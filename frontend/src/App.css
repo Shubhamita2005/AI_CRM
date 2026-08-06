@@ -445,6 +445,29 @@ body {
   margin-top: 8px;
 }
 
+.usage-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid #ececec;
+}
+
+.usage-row:last-child {
+  border-bottom: none;
+}
+
+.usage-row span {
+  color: var(--gray);
+  font-size: 16px;
+}
+
+.usage-row strong {
+  color: var(--text);
+  font-size: 17px;
+  font-weight: 600;
+}
+
 @media (max-width: 1400px) {
   .dashboard-row {
     display: grid;
