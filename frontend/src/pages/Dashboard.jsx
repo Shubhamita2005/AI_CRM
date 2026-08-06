@@ -32,21 +32,18 @@ export default function Dashboard({
         {
           title: "Trial Users",
           number: data.trialUsers || 0,
-          growth: `↑ ${data.trialGrowth || 0}%`,
         },
         {
           title: "Conversion Rate",
           number: `${data.conversionRate || 0}%`,
-          growth: `↑ ${data.conversionGrowth || 0}%`,
         },
         {
           title: "Revenue Potential",
           number: `₹${data.revenuePotential || 0}`,
-          growth: `↑ ${data.revenueGrowth || 0}%`,
         },
         {
           title: "Meetings",
-          number: data.meetingsToday || 0,
+          number: data.meetings || 0,
           growth: "Today",
         },
       ];
@@ -93,7 +90,7 @@ export default function Dashboard({
       <Followups />
 
       <CompaniesTable
-        onView={onView}
+        onView={onViewCompany}
         onAddCompany={onAddCompany}
       />
     </div>
