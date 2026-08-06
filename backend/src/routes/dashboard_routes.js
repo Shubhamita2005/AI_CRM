@@ -11,4 +11,5 @@ router.get("/recommendations", dashboardController.getRecommendations);
 router.get("/pipeline",dashboardController.getPipelineStages);
 router.get("/companies",dashboardController.getCompaniesTable);
 router.get("/company/:customerId",dashboardController.getCompanyDetails);
+router.get("/followups",dashboardController.getFollowups);
 module.exports = router;

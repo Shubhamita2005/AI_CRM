@@ -276,6 +276,38 @@ const getCompanyDetails = async (customerId) => {
     };
 
 };
+const getFollowups = async () => {
+
+    const result = await pool.query(`
+        SELECT
+            fr.recommendation_id AS id,
+            c.company_name AS company,
+            fr.recommended_action AS action,
+            fr.reason AS note,
+            fr.recommended_timeframe AS time,
+            fr.priority
+
+        FROM followup_recommendations fr
+
+        INNER JOIN customers c
+            ON fr.customer_id = c.customer_id
+
+        WHERE fr.status = 'Pending'
+
+        ORDER BY
+            CASE fr.priority
+                WHEN 'High' THEN 1
+                WHEN 'Medium' THEN 2
+                WHEN 'Low' THEN 3
+            END,
+            fr.generated_at DESC
+
+        LIMIT 5;
+    `);
+
+    return result.rows;
+
+};
 module.exports = {
   getDashboardStats,
   getLeads,
@@ -283,5 +315,6 @@ module.exports = {
   getRecommendations,
   getPipelineStages,
   getCompaniesTable,
-  getCompanyDetails
+  getCompanyDetails,
+  getFollowups
 };

@@ -124,6 +124,26 @@ const getCompanyDetails = async (req, res) => {
     }
 
 };
+const getFollowups = async (req, res) => {
+
+    try {
+
+        const followups =
+            await dashboardService.getFollowups();
+
+        res.status(200).json(followups);
+
+    } catch (error) {
+
+        console.error(error);
+
+        res.status(500).json({
+            message: "Failed to fetch follow-ups."
+        });
+
+    }
+
+};
 
 module.exports = {
   getDashboardStats,
@@ -132,5 +152,6 @@ module.exports = {
   getRecommendations,
   getPipelineStages,
    getCompaniesTable,
-   getCompanyDetails
+   getCompanyDetails,
+   getFollowups
 };
