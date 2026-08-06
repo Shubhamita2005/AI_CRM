@@ -84,14 +84,13 @@ export default function Dashboard({
           ))}
       </div>
 
-      <div className="dashboard-row">
-        <Pipeline
-          title="Sales Pipeline"
-          onViewStage={onViewStage}
-          onViewCompany={onViewCompany}
-        />
-        <Followups />
-      </div>
+      <Pipeline
+        title="Sales Pipeline"
+        onViewStage={onViewStage}
+        onViewCompany={onViewCompany}
+      />
+
+      <Followups />
 
       <CompaniesTable
         onView={onView}
