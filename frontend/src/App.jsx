@@ -113,12 +113,13 @@ export default function App() {
         />
 
         <div className="main">
-          <Navbar
-            notifyOpen={notifyOpen}
-            setNotifyOpen={setNotifyOpen}
-            placeholder={isSales ? "Search my companies, contacts..." : "Search companies, contacts..."}
-            avatarInitials={isSales ? "PG" : "SM"}
-          />
+         <Navbar
+  notifyOpen={notifyOpen}
+  setNotifyOpen={setNotifyOpen}
+  activePage={activePage}
+  placeholder={isSales ? "Search my companies, contacts..." : "Search companies, contacts..."}
+  avatarInitials={isSales ? "PG" : "SM"}
+/>
 
           <div className="content">
             {pageView?.type === "stage" && (
