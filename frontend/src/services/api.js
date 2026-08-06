@@ -25,7 +25,7 @@ async function fetchAPI(endpoint, options = {}) {
 
 // Companies API
 export const companiesAPI = {
-  getAll: () => fetchAPI("/companies"),
+  getAll: () => fetchAPI("/dashboard/companies"),
   getById: (id) => fetchAPI(`/companies/${id}`),
   getByName: (name) => fetchAPI(`/companies/name/${encodeURIComponent(name)}`),
   create: (companyData) =>
