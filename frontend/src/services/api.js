@@ -28,6 +28,7 @@ export const companiesAPI = {
   getAll: () => fetchAPI("/dashboard/companies"),
   getById: (id) => fetchAPI(`/companies/${id}`),
   getByName: (name) => fetchAPI(`/companies/name/${encodeURIComponent(name)}`),
+  getCompanyDetails: (customerId) => fetchAPI(`/dashboard/company/${customerId}`),
   create: (companyData) =>
     fetchAPI("/companies", {
       method: "POST",

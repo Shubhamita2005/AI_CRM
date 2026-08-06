@@ -71,7 +71,10 @@ export default function App() {
   };
 
   const viewStage = (stageName) => setPageView({ type: "stage", stage: stageName });
-  const viewCompany = (companyName) => setPageView({ type: "company", company: companyName });
+const viewCompany = (companyId) => {
+  console.log("viewCompany called with ID:", companyId); // ✅ Add this
+  setPageView({ type: "company", companyId });
+};
   const backToDashboard = () => setPageView(null);
 
   const goToPage = (page) => {
@@ -127,12 +130,12 @@ export default function App() {
             )}
 
             {pageView?.type === "company" && (
-              <CompanyDetail
-                companyName={pageView.company}
-                onBack={backToDashboard}
-                onGenerateEmail={() => setEmailModalOpen(true)}
-              />
-            )}
+  <CompanyDetail
+    companyId={pageView.companyId}  // ✅ Correct prop name
+    onBack={backToDashboard}
+    onGenerateEmail={() => setEmailModalOpen(true)}
+  />
+)}
             {!pageView && activePage === "dashboard" &&
   (isSales ? (
     <SalesDashboard
