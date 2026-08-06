@@ -161,11 +161,127 @@ const getCompaniesTable = async () => {
 
     return result.rows;
 };
+
+const getCompanyDetails = async (customerId) => {
+
+    // Customer + Trial Information
+    const customerResult = await pool.query(
+        `
+        SELECT
+            c.customer_id,
+            c.company_name,
+            c.first_name,
+            c.last_name,
+            c.email,
+            c.industry,
+            c.company_size,
+            c.country,
+            c.created_at,
+
+            ft.trial_start_date,
+            ft.trial_end_date,
+            ft.trial_status,
+            ft.days_active,
+            ft.current_streak,
+            ft.total_logins,
+            ft.projects_created,
+            ft.collaborators_invited,
+            ft.storage_used_gb,
+            ft.premium_features_used
+
+        FROM customers c
+
+        LEFT JOIN free_trials ft
+            ON c.customer_id = ft.customer_id
+
+        WHERE c.customer_id = $1;
+        `,
+        [customerId]
+    );
+
+    if (customerResult.rows.length === 0) {
+        throw new Error("Customer not found.");
+    }
+
+    // Activity Logs
+    const activityResult = await pool.query(
+        `
+        SELECT
+            activity_type,
+            activity_time,
+            details
+
+        FROM activity_logs
+
+        WHERE customer_id = $1
+
+        ORDER BY activity_time DESC;
+        `,
+        [customerId]
+    );
+
+    // Follow-up History
+    const historyResult = await pool.query(
+        `
+        SELECT
+            followup_type,
+            followup_status,
+            followup_date,
+            notes
+
+        FROM followup_history
+
+        WHERE customer_id = $1
+
+        ORDER BY followup_date DESC;
+        `,
+        [customerId]
+    );
+
+    // Latest AI Recommendation
+    const recommendationResult = await pool.query(
+        `
+        SELECT
+            recommended_action,
+            priority,
+            reason,
+            confidence_score,
+            estimated_conversion_probability,
+            recommended_timeframe,
+            status,
+            generated_at
+
+        FROM followup_recommendations
+
+        WHERE customer_id = $1
+
+        ORDER BY generated_at DESC
+
+        LIMIT 1;
+        `,
+        [customerId]
+    );
+
+    return {
+
+        customer: customerResult.rows[0],
+
+        activities: activityResult.rows,
+
+        followupHistory: historyResult.rows,
+
+        recommendation:
+            recommendationResult.rows[0] || null
+
+    };
+
+};
 module.exports = {
   getDashboardStats,
   getLeads,
   getTrialUsers,
   getRecommendations,
   getPipelineStages,
-  getCompaniesTable
+  getCompaniesTable,
+  getCompanyDetails
 };

@@ -102,11 +102,35 @@ const getCompaniesTable = async (req, res) => {
 
 };
 
+const getCompanyDetails = async (req, res) => {
+
+    try {
+
+        const { customerId } = req.params;
+
+        const company =
+            await dashboardService.getCompanyDetails(customerId);
+
+        res.status(200).json(company);
+
+    } catch (error) {
+
+        console.error(error);
+
+        res.status(500).json({
+            message: error.message
+        });
+
+    }
+
+};
+
 module.exports = {
   getDashboardStats,
   getLeads,
   getTrialUsers,
   getRecommendations,
   getPipelineStages,
-   getCompaniesTable
+   getCompaniesTable,
+   getCompanyDetails
 };
