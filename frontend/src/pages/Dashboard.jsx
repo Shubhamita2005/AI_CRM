@@ -90,7 +90,7 @@ export default function Dashboard({
       <Followups />
 
       <CompaniesTable
-        onView={onView}
+        onView={onViewCompany}
         onAddCompany={onAddCompany}
       />
     </div>

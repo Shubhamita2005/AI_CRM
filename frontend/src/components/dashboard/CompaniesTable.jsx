@@ -143,6 +143,7 @@ export default function CompaniesTable({
                   </span>
                 </td>
                 <td>
+                  
                   <button 
                     className="ai-btn" 
                     onClick={() => onView(company.name)}
