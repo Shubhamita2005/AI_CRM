@@ -113,31 +113,47 @@ export default function CompanyDetail({
         {/* ================= TRIAL STATUS ================= */}
         <div className="drawer-card">
           <h3>🎯 Trial Status</h3>
-          <p style={{ marginTop: "10px" }}>
-            <strong>Status:</strong>{" "}
-            <span
-              style={{
-                color: customer.trial_status === "Active" ? "#10b981" : "#ef4444",
-                fontWeight: "600",
-              }}
-            >
-              {customer.trial_status}
-            </span>
-          </p>
+         <p style={{ marginTop: "10px" }}>
+  <strong>Status:</strong>{" "}
+  <span
+    style={{
+      color:
+        customer.trial_status === "Active"
+          ? "#10b981"
+          : customer.trial_status === "Expired"
+          ? "#ef4444"
+          : "#6b7280", // neutral gray for not taken
+      fontWeight: "600",
+    }}
+  >
+    {customer.trial_status && customer.trial_status.trim() !== ""
+      ? customer.trial_status
+      : "Null"}
+  </span>
+</p>
 
           <p style={{ marginTop: "8px" }}>
-            <strong>Trial Period:</strong>{" "}
-            {new Date(customer.trial_start_date).toLocaleDateString()} –{" "}
-            {new Date(customer.trial_end_date).toLocaleDateString()}
-          </p>
+  <strong>Trial Period:</strong>{" "}
+  {customer.trial_start_date && customer.trial_end_date
+    ? `${new Date(customer.trial_start_date).toLocaleDateString()} – ${new Date(customer.trial_end_date).toLocaleDateString()}`
+    : "No trial started"}
+</p>
 
-          <p style={{ marginTop: "8px" }}>
-            <strong>Days Active:</strong> {customer.days_active}
-          </p>
+<p style={{ marginTop: "8px" }}>
+  <strong>Days Active:</strong>{" "}
+  {customer.days_active ?? 0}
+</p>
           
-          <p style={{ marginTop: "8px" }}>
-            <strong>Current Streak:</strong> {customer.current_streak}
-          </p>
+           <p style={{ marginTop: "8px" }}>
+    <strong>Current Streak:</strong>{" "}
+    {customer.current_streak && customer.current_streak > 0 ? (
+      <span style={{ color: "#f59e0b", fontWeight: "600" }}>
+        {customer.current_streak} days 🔥
+      </span>
+    ) : (
+      <span style={{ color: "#6b7280" }}>Not Started</span>
+    )}
+  </p>
         </div>
 
         {/* ================= PRODUCT USAGE ================= */}
