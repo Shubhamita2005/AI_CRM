@@ -136,10 +136,36 @@ const getPipelineStages = async () => {
         }
     ];
 };
+const getCompaniesTable = async () => {
+
+    const result = await pool.query(`
+        SELECT
+            c.customer_id AS id,
+            c.company_name AS name,
+            c.industry,
+            c.company_size AS size,
+            c.country AS location,
+
+            COALESCE(
+                fr.estimated_conversion_probability,
+                0
+            ) AS score
+
+        FROM customers c
+
+        LEFT JOIN followup_recommendations fr
+            ON c.customer_id = fr.customer_id
+
+        ORDER BY c.company_name;
+    `);
+
+    return result.rows;
+};
 module.exports = {
   getDashboardStats,
   getLeads,
   getTrialUsers,
   getRecommendations,
-  getPipelineStages
+  getPipelineStages,
+  getCompaniesTable
 };

@@ -9,4 +9,5 @@ router.get("/leads", dashboardController.getLeads);
 router.get("/trial-users", dashboardController.getTrialUsers);
 router.get("/recommendations", dashboardController.getRecommendations);
 router.get("/pipeline",dashboardController.getPipelineStages);
+router.get("/companies",dashboardController.getCompaniesTable);
 module.exports = router;
