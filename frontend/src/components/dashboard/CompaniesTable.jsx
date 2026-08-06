@@ -40,9 +40,14 @@ export default function CompaniesTable({
 
   const visibleCompanies = filteredCompanies.slice(0, visibleCount);
   const hasMore = visibleCount < filteredCompanies.length;
+  const canShowLess = visibleCount > 5;
 
   const loadMore = () => {
     setVisibleCount(prev => prev + 5);
+  };
+
+  const showLess = () => {
+    setVisibleCount(5);
   };
 
   if (loading) {
@@ -99,7 +104,7 @@ export default function CompaniesTable({
         </div>
       </div>
 
-      <table>
+      <table className="company-table">
         <thead>
           <tr>
             <th>Company</th>
@@ -152,16 +157,32 @@ export default function CompaniesTable({
         </tbody>
       </table>
 
-      {hasMore && (
-        <div style={{ textAlign: "center", marginTop: "20px" }}>
-          <button className="ai-btn" onClick={loadMore}>
-            Show More ({filteredCompanies.length - visibleCount} remaining)
-          </button>
+      {/* ✅ Show More / Show Less Buttons - Left Aligned */}
+      {(hasMore || canShowLess) && (
+        <div style={{ marginTop: "20px", display: "flex", gap: "10px", alignItems: "center" }}>
+          {hasMore && (
+            <button className="ai-btn" onClick={loadMore}>
+              Show More ({filteredCompanies.length - visibleCount} remaining)
+            </button>
+          )}
+          
+          {canShowLess && (
+            <button 
+              className="ai-btn" 
+              onClick={showLess}
+              style={{ 
+                background: "var(--gray)", 
+                color: "white" 
+              }}
+            >
+              Show Less
+            </button>
+          )}
         </div>
       )}
 
-      {!hasMore && filteredCompanies.length > 5 && (
-        <p style={{ textAlign: "center", marginTop: "20px", color: "var(--gray)" }}>
+      {!hasMore && !canShowLess && filteredCompanies.length > 5 && (
+        <p style={{ marginTop: "20px", color: "var(--gray)" }}>
           Showing all {filteredCompanies.length} companies
         </p>
       )}
