@@ -17,7 +17,7 @@ export default function Followups({ title = "Follow-ups" }) {
       setError(null);
 
       const data = await activitiesAPI.getFollowups();
-      setFollowups(data);
+      setFollowups(data || []);
     } catch (err) {
       console.error("Failed to load follow-ups:", err);
       setError("Failed to load follow-ups");
@@ -31,6 +31,7 @@ export default function Followups({ title = "Follow-ups" }) {
     setExpandedId(expandedId === id ? null : id);
   };
 
+  /* ================= LOADING ================= */
   if (loading) {
     return (
       <div className="followups">
@@ -40,6 +41,7 @@ export default function Followups({ title = "Follow-ups" }) {
     );
   }
 
+  /* ================= ERROR ================= */
   if (error) {
     return (
       <div className="followups">
@@ -75,11 +77,22 @@ export default function Followups({ title = "Follow-ups" }) {
 
             return (
               <div key={id} className="followup-card">
+                {/* ===== TOP SECTION ===== */}
                 <div className="followup-top">
                   <div>
-                    <h3>{item.company_name || item.company || item.title}</h3>
+                    <h3>
+                      {item.company_name ||
+                        item.company ||
+                        item.title ||
+                        "Unknown Company"}
+                    </h3>
+
                     <p className="followup-time">
-                      ⏰ {item.recommended_timeframe || item.time || item.date}
+                      ⏰{" "}
+                      {item.recommended_timeframe ||
+                        item.time ||
+                        item.date ||
+                        "No timeframe"}
                     </p>
                   </div>
 
@@ -92,10 +105,21 @@ export default function Followups({ title = "Follow-ups" }) {
                   </span>
                 </div>
 
-                <p className={expanded ? "followup-note expanded" : "followup-note"}>
-                  {item.reason || item.note || item.description}
+                {/* ===== NOTE ===== */}
+                <p
+                  className={
+                    expanded
+                      ? "followup-note expanded"
+                      : "followup-note"
+                  }
+                >
+                  {item.reason ||
+                    item.note ||
+                    item.description ||
+                    "No details available."}
                 </p>
 
+                {/* ===== FOOTER ===== */}
                 <div className="followup-footer">
                   <button
                     className="followup-link"
@@ -105,9 +129,15 @@ export default function Followups({ title = "Follow-ups" }) {
                   </button>
 
                   <div className="followup-actions">
-                    <button className="followup-action-btn">📞 Call</button>
-                    <button className="followup-action-btn">✉️ Email</button>
-                    <button className="followup-action-btn">📅 Schedule</button>
+                    <button className="followup-action-btn">
+                      📞 Call
+                    </button>
+                    <button className="followup-action-btn">
+                      ✉️ Email
+                    </button>
+                    <button className="followup-action-btn">
+                      📅 Schedule
+                    </button>
                   </div>
                 </div>
               </div>
