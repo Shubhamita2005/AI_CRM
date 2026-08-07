@@ -65,8 +65,8 @@ const getRecommendations = async (req, res) => {
 const getPipelineStages = async (req, res) => {
 
     try {
-
-        const stages = await dashboardService.getPipelineStages();
+             const salesRepId = req.params.salesRepId || null;
+        const stages = await dashboardService.getPipelineStages(salesRepId);
 
         res.status(200).json(stages);
 
