@@ -66,6 +66,7 @@ export default function Followups({ title = "Follow-ups" }) {
             <div key={item._id || item.id} className="followup-item">
               <div className="followup-header">
                 <h4>{item.company || item.title}</h4>
+                <p><strong>{item.action}</strong></p>
                 <span className="followup-time">{item.time || item.date}</span>
               </div>
               <p>{item.note || item.description}</p>
