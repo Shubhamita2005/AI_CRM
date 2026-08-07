@@ -3,6 +3,7 @@ import { activitiesAPI } from "../../services/api";
 
 export default function Followups({ title = "Follow-ups" }) {
   const [followups, setFollowups] = useState([]);
+  const [expandedId, setExpandedId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -14,8 +15,9 @@ export default function Followups({ title = "Follow-ups" }) {
     try {
       setLoading(true);
       setError(null);
-      const data = await activitiesAPI.getRecent(5); // Get recent 5 follow-ups
-      setFollowups(data);
+
+      const data = await activitiesAPI.getFollowups();
+      setFollowups(data || []);
     } catch (err) {
       console.error("Failed to load follow-ups:", err);
       setError("Failed to load follow-ups");
@@ -25,22 +27,26 @@ export default function Followups({ title = "Follow-ups" }) {
     }
   };
 
+  const toggleExpand = (id) => {
+    setExpandedId(expandedId === id ? null : id);
+  };
+
+  /* ================= LOADING ================= */
   if (loading) {
     return (
       <div className="followups">
         <h2>{title}</h2>
-        <p style={{ textAlign: "center", color: "var(--gray)", padding: "20px" }}>
-          Loading follow-ups...
-        </p>
+        <p className="followup-empty">Loading follow-ups...</p>
       </div>
     );
   }
 
+  /* ================= ERROR ================= */
   if (error) {
     return (
       <div className="followups">
         <h2>{title}</h2>
-        <p style={{ textAlign: "center", color: "red", padding: "20px" }}>
+        <p className="followup-empty" style={{ color: "#dc2626" }}>
           {error}
         </p>
         <div style={{ textAlign: "center" }}>
@@ -54,27 +60,89 @@ export default function Followups({ title = "Follow-ups" }) {
 
   return (
     <div className="followups">
-      <h2>{title}</h2>
+      <div className="followups-header">
+        <h2>{title}</h2>
+        <span className="followup-count">
+          {followups.length} pending
+        </span>
+      </div>
 
       <div className="followup-list">
         {followups.length === 0 ? (
-          <p style={{ textAlign: "center", color: "var(--gray)", padding: "20px" }}>
-            No follow-ups scheduled
-          </p>
+          <p className="followup-empty">No follow-ups scheduled</p>
         ) : (
-          followups.map((item) => (
-            <div key={item._id || item.id} className="followup-item">
-              <div className="followup-header">
-                <h4>{item.company || item.title}</h4>
-                <p><strong>{item.action}</strong></p>
-                <span className="followup-time">{item.time || item.date}</span>
+          followups.map((item) => {
+            const id = item.recommendation_id || item.id;
+            const expanded = expandedId === id;
+
+            return (
+              <div key={id} className="followup-card">
+                {/* ===== TOP SECTION ===== */}
+                <div className="followup-top">
+                  <div>
+                    <h3>
+                      {item.company_name ||
+                        item.company ||
+                        item.title ||
+                        "Unknown Company"}
+                    </h3>
+
+                    <p className="followup-time">
+                      ⏰{" "}
+                      {item.recommended_timeframe ||
+                        item.time ||
+                        item.date ||
+                        "No timeframe"}
+                    </p>
+                  </div>
+
+                  <span
+                    className={`followup-priority ${(
+                      item.priority || "medium"
+                    ).toLowerCase()}`}
+                  >
+                    {item.priority || "Medium"}
+                  </span>
+                </div>
+
+                {/* ===== NOTE ===== */}
+                <p
+                  className={
+                    expanded
+                      ? "followup-note expanded"
+                      : "followup-note"
+                  }
+                >
+                  {item.reason ||
+                    item.note ||
+                    item.description ||
+                    "No details available."}
+                </p>
+
+                {/* ===== FOOTER ===== */}
+                <div className="followup-footer">
+                  <button
+                    className="followup-link"
+                    onClick={() => toggleExpand(id)}
+                  >
+                    {expanded ? "Show less" : "Show more"}
+                  </button>
+
+                  <div className="followup-actions">
+                    <button className="followup-action-btn">
+                      📞 Call
+                    </button>
+                    <button className="followup-action-btn">
+                      ✉️ Email
+                    </button>
+                    <button className="followup-action-btn">
+                      📅 Schedule
+                    </button>
+                  </div>
+                </div>
               </div>
-              <p>{item.note || item.description}</p>
-              <span className={`followup-badge ${item.priority || 'medium'}`}>
-                {item.type || item.priority || 'Follow-up'}
-              </span>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
     </div>

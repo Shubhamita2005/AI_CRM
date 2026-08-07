@@ -79,12 +79,7 @@ export const statsAPI = {
   getConversionRate: () => fetchAPI("/conversion-rate/stats"),
 };
 
-// Activities API
+// Followups API
 export const activitiesAPI = {
-  getRecent: (limit = 10) => fetchAPI(`/activities?limit=${limit}`),
-  create: (activityData) =>
-    fetchAPI("/activities", {
-      method: "POST",
-      body: JSON.stringify(activityData),
-    }),
+  getFollowups: () => fetchAPI("/dashboard/followups"),
 };

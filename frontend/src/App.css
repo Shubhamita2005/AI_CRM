@@ -338,48 +338,147 @@ body {
 }
 
 /* FOLLOW UPS */
+/* ===== FOLLOWUPS IMPROVED ===== */
 .followups {
   background: white;
   border-radius: 20px;
+  padding: 28px;
   box-shadow: var(--shadow);
-  padding: 30px;
+  margin-top: 24px;
 }
 
-.followups h2 {
+.followups-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 20px;
 }
 
-.follow-item {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  padding: 15px 0;
-  border-bottom: 1px solid #eee;
-}
-
-.follow-item:last-child {
-  border: none;
-}
-
-.follow-avatar {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  background: linear-gradient(45deg, var(--accent), var(--primary));
-  color: white;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.followup-count {
+  background: #f3f4f6;
+  color: var(--gray);
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 13px;
   font-weight: 600;
 }
 
-.follow-info h4 {
-  font-size: 15px;
+.followup-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
-.follow-info p {
+.followup-card {
+  border: 1px solid #ececf2;
+  border-radius: 18px;
+  padding: 18px;
+  background: #fcfcfe;
+  transition: all 0.25s ease;
+}
+
+.followup-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(0,0,0,0.06);
+}
+
+.followup-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.followup-top h3 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.followup-time {
+  margin-top: 6px;
   color: var(--gray);
+  font-size: 14px;
+}
+
+.followup-priority {
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.followup-priority.high {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.followup-priority.medium {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.followup-priority.low {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.followup-note {
+  margin-top: 14px;
+  color: #374151;
+  line-height: 1.7;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.followup-note.expanded {
+  display: block;
+}
+
+.followup-footer {
+  margin-top: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.followup-link {
+  border: none;
+  background: transparent;
+  color: var(--primary);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.followup-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.followup-action-btn {
+  border: none;
+  background: #f5f5f7;
+  padding: 8px 12px;
+  border-radius: 12px;
+  cursor: pointer;
   font-size: 13px;
+  transition: 0.2s;
+}
+
+.followup-action-btn:hover {
+  background: var(--primary);
+  color: white;
+}
+
+.followup-empty {
+  text-align: center;
+  color: var(--gray);
+  padding: 24px;
 }
 
 /* Pipeline */
