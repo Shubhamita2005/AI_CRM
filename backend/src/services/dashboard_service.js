@@ -330,11 +330,12 @@ const getCompanyDetails = async (customerId) => {
     };
 
 };
-const getFollowups = async () => {
+const getFollowups = async (salesRepId = null) => {
 
-    const result = await pool.query(`
+    let query = `
         SELECT
             fr.recommendation_id AS id,
+            c.customer_id,
             c.company_name AS company,
             fr.recommended_action AS action,
             fr.reason AS note,
@@ -347,7 +348,16 @@ const getFollowups = async () => {
             ON fr.customer_id = c.customer_id
 
         WHERE fr.status = 'Pending'
+    `;
 
+    const values = [];
+
+    if (salesRepId) {
+        query += ` AND c.sales_rep_id = $1`;
+        values.push(salesRepId);
+    }
+
+    query += `
         ORDER BY
             CASE fr.priority
                 WHEN 'High' THEN 1
@@ -357,7 +367,9 @@ const getFollowups = async () => {
             fr.generated_at DESC
 
         LIMIT 5;
-    `);
+    `;
+
+    const result = await pool.query(query, values);
 
     return result.rows;
 

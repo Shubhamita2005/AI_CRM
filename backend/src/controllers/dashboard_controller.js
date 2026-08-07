@@ -127,9 +127,9 @@ const getCompanyDetails = async (req, res) => {
 const getFollowups = async (req, res) => {
 
     try {
-
+         const salesRepId = req.params.salesRepId || null;
         const followups =
-            await dashboardService.getFollowups();
+            await dashboardService.getFollowups(salesRepId);
 
         res.status(200).json(followups);
 
