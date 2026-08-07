@@ -106,35 +106,81 @@ const getRecommendations = async () => {
 };
 const getPipelineStages = async () => {
 
-    const leads = await getLeads();
+    const result = await pool.query(`
+        SELECT
+            customer_id,
+            company_name,
+            CONCAT(first_name, ' ', last_name) AS full_name,
+            current_stage
 
-    const trials = await getTrialUsers();
+        FROM customers
 
-    const recommendations = await getRecommendations();
+        WHERE status = 'Active'
+
+        ORDER BY company_name;
+    `);
+
+    const customers = result.rows;
 
     return [
+
         {
             name: "Lead",
-            deals: leads.map(lead => ({
-                company: lead.company_name,
-                note: lead.full_name
-            }))
+            deals: customers
+                .filter(customer => customer.current_stage === "Lead")
+                .map(customer => ({
+                    customer_id: customer.customer_id,
+                    company: customer.company_name,
+                    note: customer.full_name
+                }))
         },
+
         {
             name: "Trial",
-            deals: trials.map(trial => ({
-                company: trial.company_name,
-                note: trial.full_name
-            }))
+            deals: customers
+                .filter(customer => customer.current_stage === "Trial")
+                .map(customer => ({
+                    customer_id: customer.customer_id,
+                    company: customer.company_name,
+                    note: customer.full_name
+                }))
         },
+
         {
-            name: "Follow-up",
-            deals: recommendations.map(rec => ({
-                company: rec.company_name,
-                note: rec.recommended_action
-            }))
+            name: "Demo Booked",
+            deals: customers
+                .filter(customer => customer.current_stage === "Demo Booked")
+                .map(customer => ({
+                    customer_id: customer.customer_id,
+                    company: customer.company_name,
+                    note: customer.full_name
+                }))
+        },
+
+        {
+            name: "Negotiation",
+            deals: customers
+                .filter(customer => customer.current_stage === "Negotiation")
+                .map(customer => ({
+                    customer_id: customer.customer_id,
+                    company: customer.company_name,
+                    note: customer.full_name
+                }))
+        },
+
+        {
+            name: "Closed Won",
+            deals: customers
+                .filter(customer => customer.current_stage === "Subscribed")
+                .map(customer => ({
+                    customer_id: customer.customer_id,
+                    company: customer.company_name,
+                    note: customer.full_name
+                }))
         }
+
     ];
+
 };
 const getCompaniesTable = async () => {
 
