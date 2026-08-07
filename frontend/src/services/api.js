@@ -1,4 +1,4 @@
-const API_BASE_URL = "http://localhost:5000/api"; // Change this to your backend URL
+const API_BASE_URL = "https://your-backend.onrender.com/api";// Change this to your backend URL
 
 // Generic fetch function with error handling
 async function fetchAPI(endpoint, options = {}) {
