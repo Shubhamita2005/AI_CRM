@@ -696,6 +696,23 @@ A highly engaged customer with strong buying signals should generally have a hig
 
 The score must be based on evidence in the provided customer context.
 
+MEETING TYPE RULES:
+
+If followup_type is "MEETING", meeting_type MUST be exactly one of:
+
+"DEMO"
+"NEGOTIATION"
+
+If followup_type is "CALL" or "EMAIL",
+meeting_type MUST be null.
+
+DEMO means the meeting is intended to demonstrate the product.
+
+NEGOTIATION means the meeting is intended for pricing,
+commercial terms, requirements, implementation, or purchasing discussion.
+
+Do not use meeting_type for CALL or EMAIL.
+
 
 ==================================================
 CUSTOMER INFORMATION
@@ -855,6 +872,7 @@ Return EXACTLY this structure:
 
 {
     "followup_type": "CALL | EMAIL | MEETING",
+    "meeting_type": "DEMO | NEGOTIATION | null",
     "recommended_action": "",
     "recommended_timeframe": "",
     "priority": "High | Medium | Low",
@@ -981,6 +999,22 @@ const validateRecommendation = (recommendation) => {
         recommendation.estimated_conversion_probability =
             Math.round(conversionProbability);
     }
+    const allowedMeetingTypes = [
+    "DEMO",
+    "NEGOTIATION"
+];
+
+if (recommendation.followup_type === "MEETING") {
+
+    if (!allowedMeetingTypes.includes(recommendation.meeting_type)) {
+        recommendation.meeting_type = "DEMO";
+    }
+
+} else {
+
+    recommendation.meeting_type = null;
+
+}
 
     return recommendation;
 };
@@ -994,13 +1028,13 @@ const saveRecommendation = async (customerId, recommendation) => {
             customer_id,
             recommended_action,
             followup_type,
+            meeting_type,
             priority,
             confidence_score,
             estimated_conversion_probability,
             recommended_timeframe,
             status
         )
-
         VALUES
         (
             $1,
@@ -1010,13 +1044,15 @@ const saveRecommendation = async (customerId, recommendation) => {
             $5,
             $6,
             $7,
-            $8
+            $8,
+            $9
         );
         `,
         [
             customerId,
             recommendation.recommended_action,
             recommendation.followup_type,
+            recommendation.meeting_type,
             recommendation.priority,
             recommendation.confidence_score,
             recommendation.estimated_conversion_probability,
@@ -1024,7 +1060,6 @@ const saveRecommendation = async (customerId, recommendation) => {
             "Pending"
         ]
     );
-
 };
 
 const generateRecommendations = async () => {
