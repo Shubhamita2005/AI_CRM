@@ -5,6 +5,7 @@ export default function Pipeline({
   title = "Sales Pipeline",
   onViewStage,
   onViewCompany,
+  salesRepId = null 
 }) {
   const [stages, setStages] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -20,15 +21,15 @@ export default function Pipeline({
   ];
 
   useEffect(() => {
-    fetchStages();
-  }, []);
+  fetchStages();
+}, [salesRepId]);
 
   const fetchStages = async () => {
     try {
       setLoading(true);
       setError(null);
 
-      const data = await pipelineAPI.getStages();
+      const data = await pipelineAPI.getStages(salesRepId);
 
       // ✅ Convert backend data into ordered structure
       const orderedStages = stageOrder.map((stageName) => {
@@ -89,9 +90,10 @@ export default function Pipeline({
                 key={index}
                 className="deal"
                 style={{ cursor: "pointer" }}
-                onClick={() =>
-                  onViewCompany && onViewCompany(deal.company)
-                }
+                onClick={() => {
+  console.log("Deal clicked:", deal);
+  onViewCompany && onViewCompany(deal.customer_id);
+}}
               >
                 <h4>{deal.company}</h4>
                 <p>{deal.note}</p>
@@ -103,7 +105,7 @@ export default function Pipeline({
               <button
                 className="more-btn"
                 onClick={() =>
-                  onViewStage && onViewStage(stage.name)
+                  onViewStage && onViewStage(stage)
                 }
               >
                 View All

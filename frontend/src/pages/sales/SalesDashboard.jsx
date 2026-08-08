@@ -6,26 +6,28 @@ import Followups from "../../components/dashboard/Followups";
 import CompaniesTable from "../../components/dashboard/CompaniesTable";
 import { salesAPI } from "../../services/api";
 
-export default function SalesDashboard(props) {
-  const {
-    onViewStage,
-    onViewCompany,
-    onAddCompany,
-  } = props;
-
+export default function SalesDashboard({
+  onViewStage,
+  onViewCompany,
+  onAddCompany,
+  salesRepId,
+}) {
   const [stats, setStats] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetchSalesDashboardStats();
-  }, []);
+    if (salesRepId) {
+      fetchSalesDashboardStats();
+    }
+  }, [salesRepId]);
 
   const fetchSalesDashboardStats = async () => {
     try {
       setLoading(true);
       setError(null);
 
+      // ✅ Using existing dashboard stats route (no 404)
       const data = await salesAPI.getDashboardStats();
 
       const statCards = [
@@ -62,11 +64,13 @@ export default function SalesDashboard(props) {
 
   return (
     <div className="page active">
+      {/* ✅ Hero Section */}
       <Hero
         title="Good Morning, Sales Representative 👋"
         subtitle="Welcome back to FlowCRM AI. You have trial accounts that need attention today. Let AI Copilot help you prioritize follow-ups, prepare for meetings, and close more deals."
       />
 
+      {/* ✅ Stats Section */}
       <div className="stats">
         {loading && (
           <p style={{ textAlign: "center", padding: "20px" }}>
@@ -82,28 +86,38 @@ export default function SalesDashboard(props) {
 
         {!loading &&
           !error &&
-          stats.map((s) => (
-            <StatCard key={s.title} {...s} />
-          ))}
+          stats.map((s) => <StatCard key={s.title} {...s} />)}
       </div>
 
-      <div className="dashboard-row">
+      {/* ✅ Pipeline */}
+      <div style={{ marginTop: "30px" }}>
         <Pipeline
           title="My Pipeline"
           onViewStage={onViewStage}
           onViewCompany={onViewCompany}
+          salesRepId={salesRepId}
         />
-
-        <Followups title="My Follow-ups" />
       </div>
 
-      <CompaniesTable
-        onView={onViewCompany}
-        onAddCompany={onAddCompany}
-        title="🏢 My Companies"
-        searchPlaceholder="Search my companies"
-        addLabel="Add Lead"
-      />
+      {/* ✅ Followups BELOW Pipeline */}
+      <div style={{ marginTop: "30px" }}>
+        <Followups
+          title="My Follow-ups"
+          salesRepId={salesRepId}
+        />
+      </div>
+
+      {/* ✅ Companies Table */}
+      <div style={{ marginTop: "30px" }}>
+        <CompaniesTable
+          onView={onViewCompany}
+          onAddCompany={onAddCompany}
+          title="🏢 My Companies"
+          searchPlaceholder="Search my companies"
+          addLabel="Add Lead"
+          salesRepId={salesRepId}
+        />
+      </div>
     </div>
   );
 }

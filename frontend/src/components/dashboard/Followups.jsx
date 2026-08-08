@@ -1,7 +1,10 @@
 import { useState, useEffect } from "react";
 import { activitiesAPI } from "../../services/api";
 
-export default function Followups({ title = "Follow-ups" }) {
+export default function Followups({ 
+  title = "Follow-ups",
+  salesRepId = null
+}) {
   const [followups, setFollowups] = useState([]);
   const [expandedId, setExpandedId] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -9,14 +12,14 @@ export default function Followups({ title = "Follow-ups" }) {
 
   useEffect(() => {
     fetchFollowups();
-  }, []);
+  }, [salesRepId]);
 
   const fetchFollowups = async () => {
     try {
       setLoading(true);
       setError(null);
 
-      const data = await activitiesAPI.getFollowups();
+      const data = await activitiesAPI.getFollowups(salesRepId);
       setFollowups(data || []);
     } catch (err) {
       console.error("Failed to load follow-ups:", err);
@@ -29,6 +32,23 @@ export default function Followups({ title = "Follow-ups" }) {
 
   const toggleExpand = (id) => {
     setExpandedId(expandedId === id ? null : id);
+  };
+
+  /* ✅ Detect followup type from action text */
+  const getFollowupType = (action = "") => {
+    const lower = action.toLowerCase();
+
+    if (lower.includes("email")) return "email";
+    if (lower.includes("call")) return "call";
+    if (
+      lower.includes("demo") ||
+      lower.includes("meeting") ||
+      lower.includes("schedule")
+    )
+      return "meeting";
+
+    // ✅ Default everything to call (never general)
+    return "call";
   };
 
   /* ================= LOADING ================= */
@@ -74,6 +94,7 @@ export default function Followups({ title = "Follow-ups" }) {
           followups.map((item) => {
             const id = item.recommendation_id || item.id;
             const expanded = expandedId === id;
+            const type = getFollowupType(item.action);
 
             return (
               <div key={id} className="followup-card">
@@ -129,15 +150,23 @@ export default function Followups({ title = "Follow-ups" }) {
                   </button>
 
                   <div className="followup-actions">
-                    <button className="followup-action-btn">
-                      📞 Call
-                    </button>
-                    <button className="followup-action-btn">
-                      ✉️ Email
-                    </button>
-                    <button className="followup-action-btn">
-                      📅 Schedule
-                    </button>
+                    {type === "call" && (
+                      <button className="followup-action-btn call">
+                        📞 Call
+                      </button>
+                    )}
+
+                    {type === "email" && (
+                      <button className="followup-action-btn email">
+                        ✉️ Send Email
+                      </button>
+                    )}
+
+                    {type === "meeting" && (
+                      <button className="followup-action-btn meeting">
+                        📅 Schedule Meeting
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
