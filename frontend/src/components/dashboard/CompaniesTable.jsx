@@ -6,7 +6,8 @@ export default function CompaniesTable({
   onAddCompany, 
   title = "🏢 Companies", 
   searchPlaceholder = "Search companies",
-  addLabel = "Add Company"
+  addLabel = "Add Company",
+  salesRepId = null // ✅ Accept dynamic ID
 }) {
   const [companies, setCompanies] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -14,16 +15,22 @@ export default function CompaniesTable({
   const [searchTerm, setSearchTerm] = useState("");
   const [visibleCount, setVisibleCount] = useState(5);
 
-  // Fetch companies on component mount
+  // ✅ Fetch companies when component mounts or salesRepId changes
   useEffect(() => {
     fetchCompanies();
-  }, []);
+  }, [salesRepId]);
 
   const fetchCompanies = async () => {
     try {
       setLoading(true);
       const data = await companiesAPI.getAll();
-      setCompanies(data);
+
+      // ✅ Filter by salesRepId if provided
+      const filtered = salesRepId
+        ? data.filter((c) => c.sales_rep_id === salesRepId)
+        : data;
+
+      setCompanies(filtered);
       setError(null);
     } catch (err) {
       setError("Failed to load companies");
@@ -119,7 +126,7 @@ export default function CompaniesTable({
           {visibleCompanies.length === 0 ? (
             <tr>
               <td colSpan="6" style={{ textAlign: "center", color: "var(--gray)" }}>
-                No companies found
+                {searchTerm ? "No matching companies found" : "No companies assigned"}
               </td>
             </tr>
           ) : (
@@ -157,7 +164,7 @@ export default function CompaniesTable({
         </tbody>
       </table>
 
-      {/* ✅ Show More / Show Less Buttons - Left Aligned */}
+      {/* ✅ Show More / Show Less Buttons */}
       {(hasMore || canShowLess) && (
         <div style={{ marginTop: "20px", display: "flex", gap: "10px", alignItems: "center" }}>
           {hasMore && (

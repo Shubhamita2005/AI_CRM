@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./App.css";
 
 import Login from "./pages/Login";
@@ -22,59 +22,74 @@ import CompanyModal from "./components/overlays/CompanyModal";
 import EmailModal from "./components/overlays/EmailModal";
 import Toast from "./components/overlays/Toast";
 
-const managerNavItems = [
-  { id: "dashboard", label: "🏠 Dashboard" },
-  { id: "companies", label: "🏢 Companies" },
-  { id: "meetings", label: "📅 Meetings" },
-  { id: "activities", label: "📝 Activities" },
-  { id: "settings", label: "⚙ Settings" },
-];
-
-const salesNavItems = [
-  { id: "dashboard", label: "🏠 Dashboard" },
-  { id: "companies", label: "🏢 My Companies" },
-  { id: "meetings", label: "📅 My Meetings" },
-  { id: "activities", label: "📝 My Activities" },
-  { id: "settings", label: "⚙ Settings" },
-];
-
-const salesNotifyItems = [
-  "🔔 Your account HealthPlus is inactive for 5 days",
-  "📅 Your meeting with InnovateX is tomorrow",
-  "🚀 Your deal EduVerse upgraded to Premium",
-];
+import { activitiesAPI } from "./services/api";
 
 export default function App() {
-  const [role, setRole] = useState(null); // null | "manager" | "sales"
+  const [user, setUser] = useState(null);
   const [activePage, setActivePage] = useState("dashboard");
   const [darkMode, setDarkMode] = useState(false);
 
-  // pageView overrides normal page content — used for the pipeline
-  // "stage" drill-down and "company" detail drill-down.
-  // shape: { type: "stage", stage } | { type: "company", company } | null
   const [pageView, setPageView] = useState(null);
 
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [drawerCompany, setDrawerCompany] = useState("InnovateX");
+  const [drawerCompany, setDrawerCompany] = useState(null);
 
   const [notifyOpen, setNotifyOpen] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+
   const [copilotOpen, setCopilotOpen] = useState(false);
   const [companyModalOpen, setCompanyModalOpen] = useState(false);
   const [emailModalOpen, setEmailModalOpen] = useState(false);
   const [toastVisible, setToastVisible] = useState(false);
 
-  const isSales = role === "sales";
+  const isSales = user?.role === "sales";
+  const salesRepId = user?.id;
 
-  const openDrawer = (name) => {
-    setDrawerCompany(name);
+  /* ✅ Fetch notifications dynamically */
+  useEffect(() => {
+    if (user) {
+      fetchNotifications();
+    }
+  }, [user]); // ✅ Fixed: was 'role', now 'user'
+
+  const fetchNotifications = async () => {
+    try {
+      const data = await activitiesAPI.getFollowups(
+        isSales ? salesRepId : null // ✅ Pass dynamic sales rep ID
+      );
+      setNotifications(data?.slice(0, 3) || []);
+    } catch (err) {
+      console.error("Failed to fetch notifications:", err);
+      setNotifications([]);
+    }
+  };
+
+  /* ✅ Drawer */
+  const openDrawer = (companyId) => {
+    setDrawerCompany(companyId);
     setDrawerOpen(true);
   };
 
-  const viewStage = (stageName) => setPageView({ type: "stage", stage: stageName });
-const viewCompany = (companyId) => {
-  console.log("viewCompany called with ID:", companyId); // ✅ Add this
-  setPageView({ type: "company", companyId });
-};
+  /* ✅ View Stage */
+  const viewStage = (stageData) => {
+    setPageView({ type: "stage", stage: stageData });
+  };
+
+  /* ✅ View Company */
+  const viewCompany = (customer_id) => {
+    if (!customer_id) {
+      console.error("No customer_id provided to viewCompany");
+      return;
+    }
+
+    console.log("Viewing company:", customer_id);
+
+    setPageView({
+      type: "company",
+      customer_id: customer_id,
+    });
+  };
+
   const backToDashboard = () => setPageView(null);
 
   const goToPage = (page) => {
@@ -88,22 +103,21 @@ const viewCompany = (companyId) => {
     setTimeout(() => setToastVisible(false), 2500);
   };
 
-  
-  if (!role) {
+  /* ✅ LOGIN SCREEN */
+  if (!user) {
     return (
       <Login
         onManagerLogin={() => {
-          setRole("manager");
+          setUser({ role: "manager", id: null });
           setActivePage("dashboard");
         }}
-        onSalesLogin={() => {
-          setRole("sales");
+        onSalesLogin={(repId) => {
+          setUser({ role: "sales", id: repId });
           setActivePage("dashboard");
         }}
       />
     );
   }
-  
 
   return (
     <div className={darkMode ? "dark" : ""}>
@@ -111,78 +125,110 @@ const viewCompany = (companyId) => {
         <Sidebar
           activePage={activePage}
           setActivePage={goToPage}
-          navItems={isSales ? salesNavItems : managerNavItems}
-          tagline={isSales ? "Your accounts. Your quota. Your AI copilot." : "Convert Smarter. Grow Faster."}
+          navItems={
+            isSales
+              ? [
+                  { id: "dashboard", label: "🏠 Dashboard" },
+                  { id: "companies", label: "🏢 My Companies" },
+                  { id: "meetings", label: "📅 My Meetings" },
+                  { id: "activities", label: "📝 My Activities" },
+                  { id: "settings", label: "⚙ Settings" },
+                ]
+              : [
+                  { id: "dashboard", label: "🏠 Dashboard" },
+                  { id: "companies", label: "🏢 Companies" },
+                  { id: "meetings", label: "📅 Meetings" },
+                  { id: "activities", label: "📝 Activities" },
+                  { id: "settings", label: "⚙ Settings" },
+                ]
+          }
+          tagline={
+            isSales
+              ? "Your accounts. Your quota. Your AI copilot."
+              : "Convert Smarter. Grow Faster."
+          }
         />
 
         <div className="main">
-         <Navbar
-  notifyOpen={notifyOpen}
-  setNotifyOpen={setNotifyOpen}
-  activePage={activePage}
-  placeholder={isSales ? "Search my companies, contacts..." : "Search companies, contacts..."}
-  avatarInitials={isSales ? "PG" : "SM"}
-/>
+          <Navbar
+            notifyOpen={notifyOpen}
+            setNotifyOpen={setNotifyOpen}
+            activePage={activePage}
+            placeholder={
+              isSales
+                ? "Search my companies, contacts..."
+                : "Search companies, contacts..."
+            }
+            avatarInitials={isSales ? "PG" : "SM"}
+          />
 
           <div className="content">
+            {/* ✅ STAGE VIEW */}
             {pageView?.type === "stage" && (
-              <StageDetail stage={pageView.stage} onBack={backToDashboard} onViewCompany={viewCompany} />
+              <StageDetail
+                stage={pageView.stage}
+                onBack={backToDashboard}
+                onViewCompany={viewCompany}
+              />
             )}
 
+            {/* ✅ COMPANY VIEW */}
             {pageView?.type === "company" && (
-  <CompanyDetail
-    companyId={pageView.companyId}  // ✅ Correct prop name
-    onBack={backToDashboard}
-    onGenerateEmail={() => setEmailModalOpen(true)}
-  />
-)}
-            {!pageView && activePage === "dashboard" &&
-  (isSales ? (
-    <SalesDashboard
-      onAddCompany={() => setCompanyModalOpen(true)}
-      onViewStage={viewStage}
-      onViewCompany={viewCompany}
-    />
-  ) : (
-    <Dashboard
-      onView={openDrawer}
-      onAddCompany={() => setCompanyModalOpen(true)}
-      onViewStage={viewStage}
-      onViewCompany={viewCompany}
-    />
-  ))}
-            {!pageView && activePage === "meetings" && (
-              <Meetings title={isSales ? "📅 My Meetings" : "📅 Customer Meetings"} />
+              <CompanyDetail
+                companyId={pageView.customer_id}
+                onBack={backToDashboard}
+                onGenerateEmail={() => setEmailModalOpen(true)}
+              />
             )}
 
-            {!pageView && activePage === "activities" && (
-              <Activities title={isSales ? "📝 My Recent Activities" : "📝 Recent Activities"} />
-            )}
+            {/* ✅ DASHBOARD */}
+            {!pageView &&
+              activePage === "dashboard" &&
+              (isSales ? (
+                <SalesDashboard
+                  onAddCompany={() => setCompanyModalOpen(true)}
+                  onViewStage={viewStage}
+                  onViewCompany={viewCompany}
+                  salesRepId={salesRepId} // ✅ Pass dynamic ID
+                />
+              ) : (
+                <Dashboard
+                  onView={openDrawer}
+                  onAddCompany={() => setCompanyModalOpen(true)}
+                  onViewStage={viewStage}
+                  onViewCompany={viewCompany}
+                />
+              ))}
 
-            {!pageView && activePage === "reports" && (isSales ? <SalesReports /> : <Reports />)}
+            {!pageView && activePage === "meetings" && <Meetings />}
+            {!pageView && activePage === "activities" && <Activities />}
+            {!pageView &&
+              activePage === "reports" &&
+              (isSales ? <SalesReports /> : null)}
 
             {!pageView && activePage === "settings" && (
               <Settings
                 darkMode={darkMode}
                 setDarkMode={setDarkMode}
-                onLogout={() => setRole(null)}
+                onLogout={() => setUser(null)} // ✅ Fixed: was setRole
               />
             )}
           </div>
         </div>
       </div>
 
+      {/* ✅ OVERLAYS */}
       <Drawer
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
-        company={drawerCompany}
+        companyId={drawerCompany}
         onGenerateEmail={() => setEmailModalOpen(true)}
       />
 
       <NotifyPanel
         open={notifyOpen}
         onClose={() => setNotifyOpen(false)}
-        items={isSales ? salesNotifyItems : undefined}
+        items={notifications.map((n) => n.reason || n.action)}
       />
 
       <Copilot open={copilotOpen} setOpen={setCopilotOpen} />
@@ -194,11 +240,16 @@ const viewCompany = (companyId) => {
         title={isSales ? "Add Lead" : "Add Company"}
       />
 
-      <EmailModal open={emailModalOpen} onClose={() => setEmailModalOpen(false)} />
+      <EmailModal
+        open={emailModalOpen}
+        onClose={() => setEmailModalOpen(false)}
+      />
 
       <Toast
         visible={toastVisible}
-        message={isSales ? "Lead Added Successfully!" : "Company Added Successfully!"}
+        message={
+          isSales ? "Lead Added Successfully!" : "Company Added Successfully!"
+        }
       />
     </div>
   );

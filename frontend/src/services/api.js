@@ -47,15 +47,30 @@ export const companiesAPI = {
 
 // Pipeline/Stages API
 export const pipelineAPI = {
-  getStages: () => fetchAPI("/dashboard/pipeline"),
-  getStageDeals: (stageName) =>
-    fetchAPI(`/dashboard/pipeline/${encodeURIComponent(stageName)}`),
+  getStages: (salesRepId = null) =>
+    fetchAPI(
+      salesRepId
+        ? `/dashboard/pipeline/${salesRepId}`
+        : `/dashboard/pipeline`
+    ),
 
   moveDeal: (dealId, newStage) =>
     fetchAPI("/dashboard/pipeline/move", {
       method: "POST",
       body: JSON.stringify({ dealId, newStage }),
     }),
+};
+
+// Activities / Followups API
+export const activitiesAPI = {
+  getFollowups: (salesRepId = null) =>
+    fetchAPI(
+      salesRepId
+        ? `/dashboard/followups/${salesRepId}`
+        : `/dashboard/followups`
+    ),
+
+  getActivities: () => fetchAPI("/dashboard/activities"),
 };
 
 // Meetings API
@@ -70,7 +85,8 @@ export const meetingsAPI = {
 
 // Sales Dashboard API
 export const salesAPI = {
-  getDashboardStats: () => fetchAPI("/sales/dashboard"),
+  getDashboardStats: () =>
+    fetchAPI("/dashboard/stats"), // ✅ Use existing working route
 };
 
 // Analytics/Stats API
@@ -79,7 +95,3 @@ export const statsAPI = {
   getConversionRate: () => fetchAPI("/conversion-rate/stats"),
 };
 
-// Followups API
-export const activitiesAPI = {
-  getFollowups: () => fetchAPI("/dashboard/followups"),
-};
