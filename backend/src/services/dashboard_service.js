@@ -337,8 +337,8 @@ const getFollowups = async (salesRepId = null) => {
             fr.recommendation_id AS id,
             c.customer_id,
             c.company_name AS company,
-            fr.recommended_action AS action,
-            fr.reason AS note,
+            fr.followup_type AS action,
+            fr.recommended_action AS note,
             fr.recommended_timeframe AS time,
             fr.priority
 
