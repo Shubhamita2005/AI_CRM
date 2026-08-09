@@ -29,7 +29,9 @@ body {
   min-height: 100vh;
 }
 
-/* SIDEBAR */
+/* ========================
+   SIDEBAR
+======================== */
 .sidebar {
   width: 270px;
   background: linear-gradient(180deg, var(--primary), var(--secondary));
@@ -82,14 +84,18 @@ body {
   font-weight: 600;
 }
 
-/* MAIN */
+/* ========================
+   MAIN
+======================== */
 .main {
   margin-left: 270px;
   width: calc(100% - 270px);
   padding: 30px;
 }
 
-/* NAVBAR */
+/* ========================
+   NAVBAR
+======================== */
 .navbar {
   height: 80px;
   background: white;
@@ -158,6 +164,9 @@ body {
   padding: 0;
 }
 
+/* ========================
+   HERO
+======================== */
 .hero {
   background: white;
   border-radius: 20px;
@@ -176,31 +185,21 @@ body {
   line-height: 1.8;
 }
 
+/* ========================
+   RESPONSIVE
+======================== */
 @media (max-width: 1000px) {
-  .sidebar {
-    width: 90px;
-  }
-  .logo {
-    font-size: 18px;
-  }
-  .tagline {
-    display: none;
-  }
-  .menu a {
-    text-align: center;
-    padding: 16px 10px;
-    font-size: 12px;
-  }
-  .main {
-    margin-left: 90px;
-    width: calc(100% - 90px);
-  }
-  .search {
-    display: none;
-  }
+  .sidebar { width: 90px; }
+  .logo { font-size: 18px; }
+  .tagline { display: none; }
+  .menu a { text-align: center; padding: 16px 10px; font-size: 12px; }
+  .main { margin-left: 90px; width: calc(100% - 90px); }
+  .search { display: none; }
 }
 
-/* KPI CARDS */
+/* ========================
+   KPI STAT CARDS
+======================== */
 .stats {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -261,7 +260,9 @@ body {
   font-size: 13px;
 }
 
-/* AI + FOLLOW UPS */
+/* ========================
+   DASHBOARD ROW
+======================== */
 .dashboard-row {
   display: grid;
   grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
@@ -270,6 +271,15 @@ body {
   margin-bottom: 30px;
 }
 
+@media (max-width: 1400px) {
+  .dashboard-row {
+    grid-template-columns: minmax(0, 3fr) minmax(0, 1fr);
+  }
+}
+
+/* ========================
+   AI CARD
+======================== */
 .ai-card {
   background: white;
   border-radius: 20px;
@@ -337,8 +347,9 @@ body {
   background: var(--secondary);
 }
 
-/* FOLLOW UPS */
-/* ===== FOLLOWUPS IMPROVED ===== */
+/* ========================
+   FOLLOWUPS
+======================== */
 .followups {
   background: white;
   border-radius: 20px;
@@ -458,6 +469,9 @@ body {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
+  flex-shrink: 0;
+  justify-content: flex-end; /* ✅ force right alignment */
+  margin-left: auto;         /* ✅ push to right */
 }
 
 .followup-action-btn {
@@ -481,7 +495,26 @@ body {
   padding: 24px;
 }
 
-/* Pipeline */
+.followup-action-btn.booked {
+  background: #ede9fe;
+  color: #403d88;
+  font-weight: 600;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: 0.2s;
+}
+
+.followup-action-btn.booked:hover {
+  background: #403d88;
+  color: white;
+}
+
+/* ========================
+   PIPELINE
+======================== */
 .pipeline {
   background: white;
   padding: 20px;
@@ -497,6 +530,19 @@ body {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 18px;
+}
+
+@media (max-width: 1400px) {
+  .pipeline-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+  }
+}
+
+@media (max-width: 700px) {
+  .pipeline-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .stage {
@@ -534,16 +580,12 @@ body {
   transform: translateY(-5px);
 }
 
-.deal h4 {
-  font-size: 14px;
-}
+.deal h4 { font-size: 14px; }
+.deal p { color: var(--gray); font-size: 13px; margin-top: 8px; }
 
-.deal p {
-  color: var(--gray);
-  font-size: 13px;
-  margin-top: 8px;
-}
-
+/* ========================
+   USAGE ROW
+======================== */
 .usage-row {
   display: flex;
   justify-content: space-between;
@@ -552,42 +594,13 @@ body {
   border-bottom: 1px solid #ececec;
 }
 
-.usage-row:last-child {
-  border-bottom: none;
-}
+.usage-row:last-child { border-bottom: none; }
+.usage-row span { color: var(--gray); font-size: 16px; }
+.usage-row strong { color: var(--text); font-size: 17px; font-weight: 600; }
 
-.usage-row span {
-  color: var(--gray);
-  font-size: 16px;
-}
-
-.usage-row strong {
-  color: var(--text);
-  font-size: 17px;
-  font-weight: 600;
-}
-
-@media (max-width: 1400px) {
-  .dashboard-row {
-    display: grid;
-    grid-template-columns: minmax(0, 3fr) minmax(0, 1fr);
-    gap: 25px;
-    margin-top: 35px;
-    margin-bottom: 30px;
-  }
-  .pipeline-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 10px;
-  }
-}
-
-@media (max-width: 700px) {
-  .pipeline-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* COMPANIES SECTION */
+/* ========================
+   COMPANIES
+======================== */
 .companies {
   background: white;
   border-radius: 20px;
@@ -605,14 +618,9 @@ body {
   gap: 15px;
 }
 
-.companies-header h2 {
-  font-size: 24px;
-}
+.companies-header h2 { font-size: 24px; }
 
-.company-actions {
-  display: flex;
-  gap: 12px;
-}
+.company-actions { display: flex; gap: 12px; }
 
 .company-actions input {
   padding: 12px 18px;
@@ -633,9 +641,7 @@ body {
   transition: 0.3s;
 }
 
-.company-actions button:hover {
-  background: var(--secondary);
-}
+.company-actions button:hover { background: var(--secondary); }
 
 .company-table {
   width: 100%;
@@ -654,17 +660,9 @@ body {
   border-top: 1px solid #eee;
 }
 
-.company-table tr {
-  transition: 0.25s;
-}
-
-.company-table tr:hover {
-  background: #fafafd;
-}
-
-.company-name {
-  font-weight: 600;
-}
+.company-table tr { transition: 0.25s; }
+.company-table tr:hover { background: #fafafd; }
+.company-name { font-weight: 600; }
 
 .status {
   padding: 6px 14px;
@@ -673,33 +671,14 @@ body {
   font-size: 12px;
 }
 
-.status.active {
-  background: #10b981;
-}
+.status.active { background: #10b981; }
+.expired { background: #ef4444; }
+.converted { background: var(--primary); }
 
-.expired {
-  background: #ef4444;
-}
-
-.converted {
-  background: var(--primary);
-}
-
-.score {
-  font-weight: bold;
-}
-
-.score.high {
-  color: #10b981;
-}
-
-.score.medium {
-  color: #f59e0b;
-}
-
-.score.low {
-  color: #ef4444;
-}
+.score { font-weight: bold; }
+.score.high { color: #10b981; }
+.score.medium { color: #f59e0b; }
+.score.low { color: #ef4444; }
 
 .view-btn {
   border: none;
@@ -710,12 +689,11 @@ body {
   transition: 0.3s;
 }
 
-.view-btn:hover {
-  background: var(--accent);
-  color: white;
-}
+.view-btn:hover { background: var(--accent); color: white; }
 
-/* DETAIL DRAWER */
+/* ========================
+   DRAWER
+======================== */
 .drawer {
   position: fixed;
   top: 0;
@@ -730,19 +708,9 @@ body {
   overflow: auto;
 }
 
-.drawer.open {
-  right: 0;
-}
-
-.close {
-  float: right;
-  cursor: pointer;
-  font-size: 25px;
-}
-
-.drawer h2 {
-  margin-bottom: 10px;
-}
+.drawer.open { right: 0; }
+.close { float: right; cursor: pointer; font-size: 25px; }
+.drawer h2 { margin-bottom: 10px; }
 
 .drawer-card {
   background: #f8f8fb;
@@ -766,23 +734,19 @@ body {
   background: linear-gradient(90deg, var(--primary), var(--accent));
 }
 
-/* PAGE NAVIGATION */
-.page {
-  animation: fade 0.4s ease;
-}
+/* ========================
+   PAGE ANIMATION
+======================== */
+.page { animation: fade 0.4s ease; }
 
 @keyframes fade {
-  from {
-    opacity: 0;
-    transform: translateY(15px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-/* MEETINGS */
+/* ========================
+   MEETINGS
+======================== */
 .meetings {
   background: white;
   padding: 30px;
@@ -801,25 +765,14 @@ body {
   transition: 0.3s;
 }
 
-.meeting-card:hover {
-  transform: translateY(-4px);
-}
+.meeting-card:hover { transform: translateY(-4px); }
+.meeting-info h3 { margin-bottom: 8px; }
+.meeting-type { color: var(--secondary); font-size: 14px; }
+.meeting-time { color: var(--gray); font-size: 13px; }
 
-.meeting-info h3 {
-  margin-bottom: 8px;
-}
-
-.meeting-type {
-  color: var(--secondary);
-  font-size: 14px;
-}
-
-.meeting-time {
-  color: var(--gray);
-  font-size: 13px;
-}
-
-/* ACTIVITIES */
+/* ========================
+   ACTIVITIES
+======================== */
 .activities {
   background: white;
   padding: 30px;
@@ -833,10 +786,7 @@ body {
   padding-left: 30px;
 }
 
-.activity {
-  margin-bottom: 35px;
-  position: relative;
-}
+.activity { margin-bottom: 35px; position: relative; }
 
 .activity::before {
   content: "";
@@ -849,17 +799,12 @@ body {
   background: var(--accent);
 }
 
-.activity h4 {
-  margin-bottom: 8px;
-}
+.activity h4 { margin-bottom: 8px; }
+.activity p { color: var(--gray); line-height: 1.7; }
 
-.activity p {
-  color: var(--gray);
-  line-height: 1.7;
-}
-
-
-/* COPILOT */
+/* ========================
+   COPILOT
+======================== */
 .copilot {
   position: fixed;
   right: 30px;
@@ -900,7 +845,6 @@ body {
   outline: none;
 }
 
-/* Floating AI Button */
 .copilot-btn {
   position: fixed;
   bottom: 30px;
@@ -908,7 +852,7 @@ body {
   width: 65px;
   height: 65px;
   border-radius: 50%;
-  background: #403d88;
+  background: var(--primary);
   color: white;
   font-size: 30px;
   display: flex;
@@ -920,18 +864,12 @@ body {
   z-index: 1000;
 }
 
-.copilot-btn:hover {
-  transform: scale(1.1);
-  background: #8b639b;
-}
+.copilot-btn:hover { transform: scale(1.1); background: var(--secondary); }
+.close-copilot { float: right; cursor: pointer; font-size: 18px; }
 
-.close-copilot {
-  float: right;
-  cursor: pointer;
-  font-size: 18px;
-}
-
-/* NOTIFICATION DRAWER */
+/* ========================
+   NOTIFICATION PANEL
+======================== */
 .notify-panel {
   position: fixed;
   top: 0;
@@ -946,21 +884,19 @@ body {
   overflow: auto;
 }
 
-.notify-panel.open {
-  right: 0;
-}
+.notify-panel.open { right: 0; }
+.notify-item { padding: 15px 0; border-bottom: 1px solid #eee; }
 
-.notify-item {
-  padding: 15px 0;
-  border-bottom: 1px solid #eee;
-}
-
-/* DARK MODE */
+/* ========================
+   DARK MODE
+======================== */
 .dark {
   --background: #18181b;
   --white: #242428;
   --text: white;
   --gray: #b4b4b4;
+  background: var(--background);
+  min-height: 100vh;
 }
 
 .dark .hero,
@@ -981,34 +917,21 @@ body {
   color: white;
 }
 
-/* nested cards inside the containers above need their own
-   slightly-lighter dark background, or the white text inherited
-   from the parent becomes invisible on their original light bg */
 .dark .ai-box,
 .dark .stage,
 .dark .deal,
 .dark .chart-card,
 .dark .drawer-card,
 .dark .meeting-card,
-.dark .chat {
+.dark .chat,
+.dark .followup-card {
   background: #2f2f35;
 }
 
-.dark .company-table tr:hover {
-  background: #2f2f35;
-}
-
-.dark .company-table td {
-  border-top: 1px solid #35353b;
-}
-
-.dark .follow-item {
-  border-bottom: 1px solid #35353b;
-}
-
-.dark .notify-item {
-  border-bottom: 1px solid #35353b;
-}
+.dark .company-table tr:hover { background: #2f2f35; }
+.dark .company-table td { border-top: 1px solid #35353b; }
+.dark .follow-item { border-bottom: 1px solid #35353b; }
+.dark .notify-item { border-bottom: 1px solid #35353b; }
 
 .dark .search input,
 .dark .company-actions input,
@@ -1018,16 +941,11 @@ body {
   color: white;
 }
 
-.dark .meeting-type {
-  color: var(--accent);
-}
+.dark .meeting-type { color: var(--accent); }
 
-.dark {
-  background: var(--background);
-  min-height: 100vh;
-}
-
-/* MODAL */
+/* ========================
+   MODAL
+======================== */
 .modal {
   position: fixed;
   top: 0;
@@ -1041,9 +959,7 @@ body {
   z-index: 9999;
 }
 
-.modal.show {
-  display: flex;
-}
+.modal.show { display: flex; }
 
 .modal-content {
   background: white;
@@ -1052,9 +968,7 @@ body {
   padding: 30px;
 }
 
-.modal-content h2 {
-  margin-bottom: 20px;
-}
+.modal-content h2 { margin-bottom: 20px; }
 
 .modal-content input {
   width: 100%;
@@ -1080,16 +994,12 @@ body {
   cursor: pointer;
 }
 
-.save {
-  background: var(--primary);
-  color: white;
-}
+.save { background: var(--primary); color: white; }
+.cancel { background: #ddd; }
 
-.cancel {
-  background: #ddd;
-}
-
-/* TOAST */
+/* ========================
+   TOAST
+======================== */
 .toast {
   position: fixed;
   bottom: 30px;
@@ -1102,9 +1012,71 @@ body {
   z-index: 9999;
 }
 
-/* ==========================
-LOGIN PAGE
-========================== */
+/* ========================
+   MORE BUTTON
+======================== */
+.more-btn-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 12px;
+}
+
+.more-btn {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 8px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 12px rgba(64, 61, 136, 0.25);
+}
+
+.more-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(64, 61, 136, 0.35);
+}
+
+/* ========================
+   BOOKING MODAL
+======================== */
+.modal-overlay {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.4);
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  z-index: 1000;
+}
+
+.modal-card {
+  background: white;
+  padding: 30px;
+  width: 400px;
+  border-radius: 16px;
+  margin: 20px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+}
+
+.booking-info {
+  background: #ede9fe;
+  color: var(--primary);
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.8;
+}
+
+/* ========================
+   LOGIN PAGE
+======================== */
 .login-page {
   min-height: 100vh;
   width: 100%;
@@ -1117,19 +1089,19 @@ LOGIN PAGE
   overflow: hidden;
 }
 
-/* floating decorative blobs */
+/* Floating blobs */
 .login-blob {
   position: absolute;
   border-radius: 50%;
   filter: blur(10px);
-  opacity: 0.35;
+  opacity: 0.2;
   animation: float 8s ease-in-out infinite;
 }
 
 .blob-1 {
   width: 260px;
   height: 260px;
-  background: var(--highlight);
+  background: var(--accent);
   top: -60px;
   left: -60px;
   animation-delay: 0s;
@@ -1138,7 +1110,7 @@ LOGIN PAGE
 .blob-2 {
   width: 200px;
   height: 200px;
-  background: var(--accent);
+  background: var(--primary);
   bottom: -50px;
   right: 10%;
   animation-delay: 2s;
@@ -1147,21 +1119,18 @@ LOGIN PAGE
 .blob-3 {
   width: 150px;
   height: 150px;
-  background: var(--highlight);
+  background: var(--secondary);
   bottom: 15%;
   left: 8%;
   animation-delay: 4s;
 }
 
 @keyframes float {
-  0%, 100% {
-    transform: translateY(0) translateX(0);
-  }
-  50% {
-    transform: translateY(-25px) translateX(15px);
-  }
+  0%, 100% { transform: translateY(0) translateX(0); }
+  50% { transform: translateY(-25px) translateX(15px); }
 }
 
+/* Login Card */
 .login-card {
   background: white;
   border-radius: 26px;
@@ -1176,14 +1145,8 @@ LOGIN PAGE
 }
 
 @keyframes cardIn {
-  from {
-    opacity: 0;
-    transform: translateY(30px) scale(0.97);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
+  from { opacity: 0; transform: translateY(30px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 .login-logo {
@@ -1208,6 +1171,7 @@ LOGIN PAGE
   margin-bottom: 35px;
 }
 
+/* Role Grid */
 .role-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -1215,38 +1179,35 @@ LOGIN PAGE
 }
 
 @media (max-width: 600px) {
-  .role-grid {
-    grid-template-columns: 1fr;
-  }
+  .role-grid { grid-template-columns: 1fr; }
 }
 
+/* ✅ Both cards same style */
 .role-card {
   background: #f8f8fb;
   border: 2px solid transparent;
   border-radius: 20px;
-  padding: 30px 22px;
-  cursor: pointer;
+  padding: 28px 22px;
   transition: 0.3s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   opacity: 0;
   transform: translateY(15px);
   animation: cardIn 0.5s ease forwards;
 }
 
-.role-card:nth-child(1) {
-  animation-delay: 0.15s;
-}
-
-.role-card:nth-child(2) {
-  animation-delay: 0.3s;
-}
+.role-card:nth-child(1) { animation-delay: 0.15s; }
+.role-card:nth-child(2) { animation-delay: 0.3s; }
 
 .role-card:hover {
-  transform: translateY(-8px);
+  transform: translateY(-6px);
   border-color: var(--primary);
   background: white;
   box-shadow: var(--shadow);
 }
 
+/* ✅ Both icons same style */
 .role-icon {
   width: 65px;
   height: 65px;
@@ -1255,16 +1216,9 @@ LOGIN PAGE
   align-items: center;
   justify-content: center;
   font-size: 28px;
-  margin: 0 auto 16px;
+  margin-bottom: 14px;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
   transition: 0.3s;
-}
-
-.manager-icon {
-  background: linear-gradient(135deg, var(--primary), var(--accent));
-}
-
-.sales-icon {
-  background: linear-gradient(135deg, var(--accent), var(--highlight));
 }
 
 .role-card:hover .role-icon {
@@ -1273,44 +1227,145 @@ LOGIN PAGE
 
 .role-card h3 {
   font-size: 17px;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
+  color: var(--text);
 }
 
 .role-card p {
   color: var(--gray);
   font-size: 13px;
   line-height: 1.6;
-  min-height: 40px;
+  margin-bottom: 10px;
 }
 
-.role-cta {
-  display: inline-block;
-  margin-top: 16px;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--primary);
+/* ✅ Unified input for both cards */
+.role-card input {
+  width: 100%;
+  padding: 11px 16px;
+  margin-top: 10px;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  font-size: 14px;
+  outline: none;
+  text-align: center;
+  font-family: "Poppins", sans-serif;
+  transition: 0.3s ease;
 }
 
-.more-btn-container {
-  display: flex;
-  justify-content: center;
+.role-card input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(64, 61, 136, 0.1);
+}
+
+/* ✅ Unified button — dark purple for both */
+.role-card button {
+  width: 100%;
   margin-top: 12px;
-}
-
-.more-btn {
-  background: linear-gradient(135deg, #5B4BDB, #6D5EF8);
+  padding: 12px 20px;
+  background: var(--primary);
   color: white;
   border: none;
-  border-radius: 10px;
-  padding: 8px 18px;
-  font-size: 14px;
+  border-radius: 12px;
   font-weight: 600;
+  font-size: 14px;
   cursor: pointer;
-  transition: all 0.25s ease;
-  box-shadow: 0 4px 12px rgba(91, 75, 219, 0.25);
+  font-family: "Poppins", sans-serif;
+  transition: 0.3s ease;
+  box-shadow: 0 4px 14px rgba(64, 61, 136, 0.3);
 }
 
-.more-btn:hover {
+.role-card button:hover {
+  background: var(--secondary);
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(91, 75, 219, 0.35);
+  box-shadow: 0 8px 20px rgba(64, 61, 136, 0.4);
+}
+
+.role-card button:active {
+  transform: translateY(0);
+}
+
+/* Remove number input spinners */
+.role-card input[type=number]::-webkit-outer-spin-button,
+.role-card input[type=number]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.role-card input[type=number] {
+  -moz-appearance: textfield;
+}
+
+/* ========================
+   CUSTOM TOAST NOTIFICATION
+======================== */
+.custom-toast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: white;
+  padding: 20px 28px;
+  border-radius: 16px;
+  box-shadow: 0 15px 40px rgba(64, 61, 136, 0.4);
+  z-index: 10000;
+  animation: slideInRight 0.4s ease, fadeOut 0.4s ease 2.6s forwards;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  min-width: 320px;
+  max-width: 420px;
+}
+
+.custom-toast-icon {
+  font-size: 32px;
+  flex-shrink: 0;
+}
+
+.custom-toast-content {
+  flex: 1;
+}
+
+.custom-toast-title {
+  font-weight: 700;
+  font-size: 16px;
+  margin-bottom: 4px;
+}
+
+.custom-toast-message {
+  font-size: 13px;
+  opacity: 0.95;
+  line-height: 1.5;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(400px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  to {
+    opacity: 0;
+    transform: translateX(400px);
+  }
+}
+
+/* Success variant */
+.custom-toast.success {
+  background: linear-gradient(135deg, #10b981, #059669);
+}
+
+/* Demo variant */
+.custom-toast.demo {
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+}
+
+/* Negotiation variant */
+.custom-toast.negotiation {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
 }

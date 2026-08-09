@@ -5,6 +5,7 @@ import Pipeline from "../../components/dashboard/Pipeline";
 import Followups from "../../components/dashboard/Followups";
 import CompaniesTable from "../../components/dashboard/CompaniesTable";
 import { salesAPI } from "../../services/api";
+import DemoBookings from "../../components/dashboard/DemoBookings";
 
 export default function SalesDashboard({
   onViewStage,
@@ -34,17 +35,14 @@ export default function SalesDashboard({
         {
           title: "My Trial Accounts",
           number: data.trialAccounts || 0,
-          growth: `↑ ${data.newTrials || 0} this week`,
         },
         {
           title: "My Conversion Rate",
           number: `${data.conversionRate || 0}%`,
-          growth: `↑ ${data.conversionGrowth || 0}%`,
         },
         {
           title: "Quota Progress",
           number: `${data.quotaProgress || 0}%`,
-          growth: `₹${data.salesAchieved || 0} / ₹${data.salesTarget || 0}`,
         },
         {
           title: "My Meetings",
@@ -106,6 +104,7 @@ export default function SalesDashboard({
           salesRepId={salesRepId}
         />
       </div>
+      <DemoBookings salesRepId={salesRepId} />
 
       {/* ✅ Companies Table */}
       <div style={{ marginTop: "30px" }}>
