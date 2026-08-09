@@ -49,7 +49,6 @@ const createDemoBooking = async (req, res) => {
         });
     }
 };
-const demoService = require("../services/demo_service");
 
 const getDemoBookings = async (req, res) => {
 
