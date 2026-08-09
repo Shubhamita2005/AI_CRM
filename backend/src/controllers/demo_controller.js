@@ -49,7 +49,27 @@ const createDemoBooking = async (req, res) => {
         });
     }
 };
+const demoService = require("../services/demo_service");
 
+const getDemoBookings = async (req, res) => {
+
+    try {
+
+        const bookings = await demoService.getDemoBookings();
+
+        res.status(200).json(bookings);
+
+    } catch (error) {
+
+        console.error(error);
+
+        res.status(500).json({
+            message: "Failed to fetch demo bookings."
+        });
+
+    }
+};
 module.exports = {
-    createDemoBooking
+    createDemoBooking,
+    getDemoBookings
 };

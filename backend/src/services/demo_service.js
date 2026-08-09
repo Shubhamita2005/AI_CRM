@@ -62,10 +62,47 @@ const createDemoBooking = async ({
             demoTime
         ]
     );
-
+await pool.query(
+    `
+    UPDATE customers
+    SET current_stage = 'Demo Booked'
+    WHERE customer_id = $1;
+    `,
+    [customerId]
+);
     return result.rows[0];
+};
+const getDemoBookings = async () => {
+
+    const result = await pool.query(
+        `
+        SELECT
+            d.demo_id,
+            d.customer_id,
+            c.company_name,
+            c.first_name,
+            c.last_name,
+            d.sales_rep_id,
+            d.demo_date,
+            d.demo_time,
+            d.meeting_link,
+            d.status,
+            d.created_at,
+            d.completed_at
+
+        FROM demo_bookings d
+
+        INNER JOIN customers c
+            ON d.customer_id = c.customer_id
+
+        ORDER BY d.demo_date ASC, d.demo_time ASC;
+        `
+    );
+
+    return result.rows;
 };
 
 module.exports = {
-    createDemoBooking
+    createDemoBooking,
+      getDemoBookings
 };
