@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { activitiesAPI } from "../../services/api";
+import DemoBookingForm from "../overlays/DemoBookingForm";
+import NegotiationBookingForm from "../overlays/NegotiationBookingForm";
 
 export default function Followups({ 
   title = "Follow-ups",
@@ -10,15 +12,25 @@ export default function Followups({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const [demoCustomer, setDemoCustomer] = useState(null);
+  const [negotiationCustomer, setNegotiationCustomer] = useState(null);
+  const [demoBookings, setDemoBookings] = useState([]);
+  const [negotiationBookings, setNegotiationBookings] = useState([]);
+
+  const [popupBooking, setPopupBooking] = useState(null);
+  const [popupType, setPopupType] = useState(null);
+
+  const [toast, setToast] = useState(null);
+
   useEffect(() => {
     fetchFollowups();
+    fetchBookings();
   }, [salesRepId]);
 
   const fetchFollowups = async () => {
     try {
       setLoading(true);
       setError(null);
-
       const data = await activitiesAPI.getFollowups(salesRepId);
       setFollowups(data || []);
     } catch (err) {
@@ -30,25 +42,81 @@ export default function Followups({
     }
   };
 
+  const fetchBookings = async () => {
+    try {
+      const demoRes = await fetch(
+        "https://ai-crm-83jh.onrender.com/api/demo-bookings"
+      );
+      const demoData = await demoRes.json();
+      setDemoBookings(Array.isArray(demoData) ? demoData : []);
+
+      const negotiationRes = await fetch(
+        "https://ai-crm-83jh.onrender.com/api/negotiation-meetings"
+      );
+      const negotiationData = await negotiationRes.json();
+      setNegotiationBookings(
+        Array.isArray(negotiationData) ? negotiationData : []
+      );
+    } catch (error) {
+      console.error("Failed to fetch bookings:", error);
+    }
+  };
+
   const toggleExpand = (id) => {
     setExpandedId(expandedId === id ? null : id);
   };
 
-  /* ✅ Detect followup type from action text */
-  const getFollowupType = (action = "") => {
-    const lower = action.toLowerCase();
+  // ✅ NEW: Format date helper function
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
+    
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString("en-US", {
+        weekday: "short",
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      });
+    } catch (error) {
+      return dateString;
+    }
+  };
 
-    if (lower.includes("email")) return "email";
-    if (lower.includes("call")) return "call";
-    if (
-      lower.includes("demo") ||
-      lower.includes("meeting") ||
-      lower.includes("schedule")
-    )
-      return "meeting";
+  // ✅ NEW: Format time helper function
+  const formatTime = (timeString) => {
+    if (!timeString) return "N/A";
+    
+    try {
+      // Handle both "HH:MM:SS" and "HH:MM" formats
+      const [hours, minutes] = timeString.split(":");
+      const hour = parseInt(hours);
+      const ampm = hour >= 12 ? "PM" : "AM";
+      const displayHour = hour % 12 || 12;
+      
+      return `${displayHour}:${minutes} ${ampm}`;
+    } catch (error) {
+      return timeString;
+    }
+  };
 
-    // ✅ Default everything to call (never general)
-    return "call";
+  const showToast = (type, companyName, date, time) => {
+    const messages = {
+      demo: {
+        icon: "🎉",
+        title: "Demo Successfully Booked!",
+        message: `Your demo with ${companyName} is scheduled for ${formatDate(date)} at ${formatTime(time)}. Get ready to showcase!`
+      },
+      negotiation: {
+        icon: "🤝",
+        title: "Negotiation Meeting Set!",
+        message: `Negotiation with ${companyName} confirmed for ${formatDate(date)} at ${formatTime(time)}. Time to close the deal!`
+      }
+    };
+
+    setToast({ ...messages[type], type });
+
+    setTimeout(() => setToast(null), 3000);
   };
 
   /* ================= LOADING ================= */
@@ -94,26 +162,28 @@ export default function Followups({
           followups.map((item) => {
             const id = item.recommendation_id || item.id;
             const expanded = expandedId === id;
-            const type = getFollowupType(item.action);
+            const isLongText = item.note && item.note.length > 120;
+
+            const demoBooking = demoBookings.find(
+              (b) => Number(b.customer_id) === Number(item.customer_id)
+            );
+
+            const negotiationBooking = negotiationBookings.find(
+              (b) => Number(b.customer_id) === Number(item.customer_id)
+            );
 
             return (
               <div key={id} className="followup-card">
-                {/* ===== TOP SECTION ===== */}
                 <div className="followup-top">
                   <div>
-                    <h3>
-                      {item.company_name ||
-                        item.company ||
-                        item.title ||
-                        "Unknown Company"}
-                    </h3>
+                    <h3>{item.company_name || item.company}</h3>
+
+                    <p style={{ fontSize: "12px", color: "var(--gray)" }}>
+                      Customer ID: {item.customer_id}
+                    </p>
 
                     <p className="followup-time">
-                      ⏰{" "}
-                      {item.recommended_timeframe ||
-                        item.time ||
-                        item.date ||
-                        "No timeframe"}
+                      ⏰ {item.time || "No timeframe"}
                     </p>
                   </div>
 
@@ -126,47 +196,92 @@ export default function Followups({
                   </span>
                 </div>
 
-                {/* ===== NOTE ===== */}
-                <p
-                  className={
-                    expanded
-                      ? "followup-note expanded"
-                      : "followup-note"
-                  }
-                >
-                  {item.reason ||
-                    item.note ||
-                    item.description ||
-                    "No details available."}
+                <p className={expanded ? "followup-note expanded" : "followup-note"}>
+                  {item.note || "No details available."}
                 </p>
 
-                {/* ===== FOOTER ===== */}
                 <div className="followup-footer">
-                  <button
-                    className="followup-link"
-                    onClick={() => toggleExpand(id)}
-                  >
-                    {expanded ? "Show less" : "Show more"}
-                  </button>
+                  {isLongText && (
+                    <button
+                      className="followup-link"
+                      onClick={() => toggleExpand(id)}
+                    >
+                      {expanded ? "Show less" : "Show more"}
+                    </button>
+                  )}
 
                   <div className="followup-actions">
-                    {type === "call" && (
+
+                    {item.action === "CALL" && (
                       <button className="followup-action-btn call">
                         📞 Call
                       </button>
                     )}
 
-                    {type === "email" && (
+                    {item.action === "EMAIL" && (
                       <button className="followup-action-btn email">
                         ✉️ Send Email
                       </button>
                     )}
 
-                    {type === "meeting" && (
-                      <button className="followup-action-btn meeting">
-                        📅 Schedule Meeting
-                      </button>
+                    {item.action === "MEETING" &&
+                      item.meeting_type === "DEMO" && (
+                      demoBooking ? (
+                        <button
+                          className="followup-action-btn booked"
+                          onClick={() => {
+                            setPopupBooking(demoBooking);
+                            setPopupType("demo");
+                          }}
+                        >
+                          ✅ Demo Booked
+                        </button>
+                      ) : (
+                        <button
+                          className="followup-action-btn meeting"
+                          onClick={() =>
+                            setDemoCustomer({
+                              customer_id: item.customer_id,
+                              company: item.company,
+                              contact: item.contact || "N/A",
+                              email: item.email || "N/A",
+                            })
+                          }
+                        >
+                          📅 Schedule Demo
+                        </button>
+                      )
                     )}
+
+                    {item.action === "MEETING" &&
+                      item.meeting_type === "NEGOTIATION" && (
+                      negotiationBooking ? (
+                        <button
+                          className="followup-action-btn booked"
+                          onClick={() => {
+                            setPopupBooking(negotiationBooking);
+                            setPopupType("negotiation");
+                          }}
+                        >
+                          ✅ Negotiation Booked
+                        </button>
+                      ) : (
+                        <button
+                          className="followup-action-btn negotiation"
+                          onClick={() =>
+                            setNegotiationCustomer({
+                              customer_id: item.customer_id,
+                              company: item.company,
+                              contact: item.contact || "N/A",
+                              email: item.email || "N/A",
+                            })
+                          }
+                        >
+                          🤝 Schedule Negotiation
+                        </button>
+                      )
+                    )}
+
                   </div>
                 </div>
               </div>
@@ -174,6 +289,178 @@ export default function Followups({
           })
         )}
       </div>
+
+      {/* ✅ Custom Toast Notification */}
+      {toast && (
+        <div className={`custom-toast ${toast.type}`}>
+          <div className="custom-toast-icon">{toast.icon}</div>
+          <div className="custom-toast-content">
+            <div className="custom-toast-title">{toast.title}</div>
+            <div className="custom-toast-message">{toast.message}</div>
+          </div>
+        </div>
+      )}
+
+      {/* ✅ Booking Details Popup - NOW WITH FORMATTED DATES */}
+      {popupBooking && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            background: "rgba(0,0,0,0.4)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 9999,
+          }}
+          onClick={() => setPopupBooking(null)}
+        >
+          <div
+            style={{
+              background: "white",
+              borderRadius: "16px",
+              padding: "30px",
+              width: "360px",
+              boxShadow: "0 20px 50px rgba(0,0,0,0.2)",
+              position: "relative",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setPopupBooking(null)}
+              style={{
+                position: "absolute",
+                top: "15px",
+                right: "15px",
+                background: "none",
+                border: "none",
+                fontSize: "20px",
+                cursor: "pointer",
+                color: "#6b7280",
+              }}
+            >
+              ✕
+            </button>
+
+            <h3 style={{ marginBottom: "16px", color: "#403d88" }}>
+              {popupType === "demo"
+                ? "📅 Demo Meeting Details"
+                : "🤝 Negotiation Meeting Details"}
+            </h3>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+              <div style={detailRow}>
+                <span style={detailLabel}>Company</span>
+                <span style={detailValue}>
+                  {popupBooking.company_name || "N/A"}
+                </span>
+              </div>
+
+              <div style={detailRow}>
+                <span style={detailLabel}>Date</span>
+                <span style={detailValue}>
+                  📅{" "}
+                  {formatDate(
+                    popupType === "demo"
+                      ? popupBooking.demo_date
+                      : popupBooking.negotiation_date
+                  )}
+                </span>
+              </div>
+
+              <div style={detailRow}>
+                <span style={detailLabel}>Time</span>
+                <span style={detailValue}>
+                  ⏰{" "}
+                  {formatTime(
+                    popupType === "demo"
+                      ? popupBooking.demo_time
+                      : popupBooking.negotiation_time
+                  )}
+                </span>
+              </div>
+
+              <div style={detailRow}>
+                <span style={detailLabel}>Status</span>
+                <span
+                  style={{
+                    background: "#dcfce7",
+                    color: "#166534",
+                    padding: "4px 12px",
+                    borderRadius: "999px",
+                    fontWeight: "600",
+                    fontSize: "13px",
+                  }}
+                >
+                  {popupBooking.status || "Scheduled"}
+                </span>
+              </div>
+            </div>
+
+            <button
+              className="ai-btn"
+              onClick={() => setPopupBooking(null)}
+              style={{ marginTop: "24px", width: "100%" }}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+
+      <DemoBookingForm
+        open={!!demoCustomer}
+        customer={demoCustomer}
+        salesRepId={salesRepId}
+        onClose={() => setDemoCustomer(null)}
+        onSuccess={(bookingData) => {
+          fetchBookings();
+          showToast(
+            'demo',
+            bookingData.company_name || demoCustomer?.company,
+            bookingData.demo_date,
+            bookingData.demo_time
+          );
+        }}
+      />
+
+      <NegotiationBookingForm
+        open={!!negotiationCustomer}
+        customer={negotiationCustomer}
+        salesRepId={salesRepId}
+        onClose={() => setNegotiationCustomer(null)}
+        onSuccess={(bookingData) => {
+          fetchBookings();
+          showToast(
+            'negotiation',
+            bookingData.company_name || negotiationCustomer?.company,
+            bookingData.negotiation_date,
+            bookingData.negotiation_time
+          );
+        }}
+      />
     </div>
   );
 }
+
+const detailRow = {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  padding: "10px 0",
+  borderBottom: "1px solid #f3f4f6",
+};
+
+const detailLabel = {
+  color: "#6b7280",
+  fontSize: "14px",
+};
+
+const detailValue = {
+  fontWeight: "600",
+  fontSize: "14px",
+  color: "#1f2937",
+};

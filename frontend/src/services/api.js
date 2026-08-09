@@ -95,3 +95,7 @@ export const statsAPI = {
   getConversionRate: () => fetchAPI("/conversion-rate/stats"),
 };
 
+// ✅ Demo Booking API
+export const demoBookingAPI = {
+  getAll: () => fetchAPI("/demo-bookings"),
+};
