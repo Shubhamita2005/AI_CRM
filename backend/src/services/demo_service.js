@@ -3,7 +3,8 @@ const pool = require("../config/database");
 const createDemoBooking = async ({
     customerId,
     demoDate,
-    demoTime
+    demoTime,
+    salesRepId
 }) => {
 
     // 1. Check that the customer exists
@@ -41,25 +42,29 @@ const createDemoBooking = async ({
         (
             customer_id,
             demo_date,
-            demo_time
+            demo_time,
+            sales_rep_id
         )
         VALUES
         (
             $1,
             $2,
-            $3
+            $3,
+            $4
         )
         RETURNING
             demo_id,
             customer_id,
             demo_date,
             demo_time,
+            sales_rep_id,
             created_at;
         `,
         [
             customerId,
             demoDate,
-            demoTime
+            demoTime,
+            salesRepId
         ]
     );
 await pool.query(
