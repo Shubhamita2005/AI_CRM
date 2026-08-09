@@ -20,7 +20,6 @@ export default function Followups({
   const [popupBooking, setPopupBooking] = useState(null);
   const [popupType, setPopupType] = useState(null);
 
-  // ✅ NEW: Toast notification state
   const [toast, setToast] = useState(null);
 
   useEffect(() => {
@@ -67,24 +66,56 @@ export default function Followups({
     setExpandedId(expandedId === id ? null : id);
   };
 
-  // ✅ NEW: Show custom toast notification
+  // ✅ NEW: Format date helper function
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
+    
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString("en-US", {
+        weekday: "short",
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      });
+    } catch (error) {
+      return dateString;
+    }
+  };
+
+  // ✅ NEW: Format time helper function
+  const formatTime = (timeString) => {
+    if (!timeString) return "N/A";
+    
+    try {
+      // Handle both "HH:MM:SS" and "HH:MM" formats
+      const [hours, minutes] = timeString.split(":");
+      const hour = parseInt(hours);
+      const ampm = hour >= 12 ? "PM" : "AM";
+      const displayHour = hour % 12 || 12;
+      
+      return `${displayHour}:${minutes} ${ampm}`;
+    } catch (error) {
+      return timeString;
+    }
+  };
+
   const showToast = (type, companyName, date, time) => {
     const messages = {
       demo: {
         icon: "🎉",
         title: "Demo Successfully Booked!",
-        message: `Your demo with ${companyName} is scheduled for ${date} at ${time}. Get ready to showcase!`
+        message: `Your demo with ${companyName} is scheduled for ${formatDate(date)} at ${formatTime(time)}. Get ready to showcase!`
       },
       negotiation: {
         icon: "🤝",
         title: "Negotiation Meeting Set!",
-        message: `Negotiation with ${companyName} confirmed for ${date} at ${time}. Time to close the deal!`
+        message: `Negotiation with ${companyName} confirmed for ${formatDate(date)} at ${formatTime(time)}. Time to close the deal!`
       }
     };
 
     setToast({ ...messages[type], type });
 
-    // Auto-hide after 3 seconds
     setTimeout(() => setToast(null), 3000);
   };
 
@@ -181,21 +212,18 @@ export default function Followups({
 
                   <div className="followup-actions">
 
-                    {/* ✅ CALL */}
                     {item.action === "CALL" && (
                       <button className="followup-action-btn call">
                         📞 Call
                       </button>
                     )}
 
-                    {/* ✅ EMAIL */}
                     {item.action === "EMAIL" && (
                       <button className="followup-action-btn email">
                         ✉️ Send Email
                       </button>
                     )}
 
-                    {/* ✅ DEMO */}
                     {item.action === "MEETING" &&
                       item.meeting_type === "DEMO" && (
                       demoBooking ? (
@@ -225,7 +253,6 @@ export default function Followups({
                       )
                     )}
 
-                    {/* ✅ NEGOTIATION */}
                     {item.action === "MEETING" &&
                       item.meeting_type === "NEGOTIATION" && (
                       negotiationBooking ? (
@@ -274,7 +301,7 @@ export default function Followups({
         </div>
       )}
 
-      {/* ✅ Booking Details Popup */}
+      {/* ✅ Booking Details Popup - NOW WITH FORMATTED DATES */}
       {popupBooking && (
         <div
           style={{
@@ -336,9 +363,11 @@ export default function Followups({
                 <span style={detailLabel}>Date</span>
                 <span style={detailValue}>
                   📅{" "}
-                  {popupType === "demo"
-                    ? popupBooking.demo_date
-                    : popupBooking.negotiation_date}
+                  {formatDate(
+                    popupType === "demo"
+                      ? popupBooking.demo_date
+                      : popupBooking.negotiation_date
+                  )}
                 </span>
               </div>
 
@@ -346,9 +375,11 @@ export default function Followups({
                 <span style={detailLabel}>Time</span>
                 <span style={detailValue}>
                   ⏰{" "}
-                  {popupType === "demo"
-                    ? popupBooking.demo_time
-                    : popupBooking.negotiation_time}
+                  {formatTime(
+                    popupType === "demo"
+                      ? popupBooking.demo_time
+                      : popupBooking.negotiation_time
+                  )}
                 </span>
               </div>
 
@@ -380,7 +411,6 @@ export default function Followups({
         </div>
       )}
 
-      {/* ✅ Demo Booking Modal */}
       <DemoBookingForm
         open={!!demoCustomer}
         customer={demoCustomer}
@@ -388,7 +418,6 @@ export default function Followups({
         onClose={() => setDemoCustomer(null)}
         onSuccess={(bookingData) => {
           fetchBookings();
-          // ✅ Show toast notification
           showToast(
             'demo',
             bookingData.company_name || demoCustomer?.company,
@@ -398,7 +427,6 @@ export default function Followups({
         }}
       />
 
-      {/* ✅ Negotiation Booking Modal */}
       <NegotiationBookingForm
         open={!!negotiationCustomer}
         customer={negotiationCustomer}
@@ -406,7 +434,6 @@ export default function Followups({
         onClose={() => setNegotiationCustomer(null)}
         onSuccess={(bookingData) => {
           fetchBookings();
-          // ✅ Show toast notification
           showToast(
             'negotiation',
             bookingData.company_name || negotiationCustomer?.company,
