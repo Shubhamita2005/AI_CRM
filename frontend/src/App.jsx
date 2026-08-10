@@ -11,6 +11,7 @@ import CompanyDetail from "./pages/Companydetail";
 
 import SalesDashboard from "./pages/sales/SalesDashboard";
 import SalesReports from "./pages/sales/SalesReports";
+import SalesActivities from "./pages/sales/SalesActivities";
 
 import Sidebar from "./components/layout/Sidebar";
 import Navbar from "./components/layout/Navbar";
@@ -203,7 +204,11 @@ export default function App() {
            {!pageView && activePage === "meetings" && (
   <Meetings salesRepId={salesRepId} />
 )}
-            {!pageView && activePage === "activities" && <Activities />}
+            {!pageView && activePage === "activities" && (
+  isSales
+    ? <SalesActivities />
+    : <Activities />
+)}
             {!pageView &&
               activePage === "reports" &&
               (isSales ? <SalesReports /> : null)}
