@@ -40,9 +40,10 @@ router.get("/google/callback", async (req, res) => {
 
        const existingCredential = await pool.query(
     `
-    SELECT id
-    FROM google_calendar_credentials
-    LIMIT 1;
+   SELECT id
+FROM google_calendar_credentials
+ORDER BY id DESC
+LIMIT 1;
     `
 );
 
