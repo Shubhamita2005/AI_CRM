@@ -38,7 +38,7 @@ export default function Meetings({
           console.warn("⚠️ Demo bookings endpoint returned:", demoRes.status);
         }
       } catch (err) {
-        console.warn("⚠️ Failed to fetch demo bookings:", err.message);
+        console.warn("⚠️ Could not fetch demo bookings:", err.message);
       }
 
       // ✅ Fetch negotiation meetings
@@ -47,14 +47,20 @@ export default function Meetings({
         const negotiationRes = await fetch(
           "https://ai-crm-83jh.onrender.com/api/negotiation-meetings"
         );
+        
         if (negotiationRes.ok) {
-          negotiationData = await negotiationRes.json();
-          console.log("🤝 Negotiation data:", negotiationData);
+          const contentType = negotiationRes.headers.get("content-type");
+          if (contentType && contentType.includes("application/json")) {
+            negotiationData = await negotiationRes.json();
+            console.log("🤝 Negotiation data:", negotiationData);
+          } else {
+            console.warn("⚠️ Negotiation endpoint returned non-JSON");
+          }
         } else {
-          console.warn("⚠️ Negotiation endpoint returned:", negotiationRes.status);
+          console.warn("⚠️ Negotiation endpoint not available (404)");
         }
       } catch (err) {
-        console.warn("⚠️ Failed to fetch negotiation meetings:", err.message);
+        console.warn("⚠️ Could not fetch negotiation meetings:", err.message);
       }
 
       // ✅ Filter by sales rep
@@ -76,48 +82,51 @@ export default function Meetings({
       console.log("✅ Filtered negotiations:", filteredNegotiations);
 
       // ✅ Format demo meetings
-      const formattedDemos = filteredDemos.map((d) => ({
-        id: `demo-${d.id}`,
-        company: d.company_name || "Unknown Company",
-        type: "📅 Demo Meeting",
-        date: d.demo_date,
-        time: d.demo_time,
-      }));
+      const formattedDemos = filteredDemos.map((d) => {
+        // Extract clean date (YYYY-MM-DD)
+        const cleanDate = d.demo_date 
+          ? (typeof d.demo_date === 'string' ? d.demo_date.split('T')[0] : d.demo_date)
+          : null;
+
+        return {
+          id: `demo-${d.demo_id}`,
+          company: d.company_name || "Unknown Company",
+          type: "📅 Demo Meeting",
+          date: cleanDate,
+          time: d.demo_time || "00:00",
+        };
+      });
 
       // ✅ Format negotiation meetings
-      const formattedNegotiations = filteredNegotiations.map((n) => ({
-        id: `neg-${n.id}`,
-        company: n.company_name || "Unknown Company",
-        type: "🤝 Negotiation Meeting",
-        date: n.negotiation_date,
-        time: n.negotiation_time,
-      }));
+      const formattedNegotiations = filteredNegotiations.map((n) => {
+        const cleanDate = n.negotiation_date 
+          ? (typeof n.negotiation_date === 'string' ? n.negotiation_date.split('T')[0] : n.negotiation_date)
+          : null;
+
+        return {
+          id: `neg-${n.id || n.negotiation_id}`,
+          company: n.company_name || "Unknown Company",
+          type: "🤝 Negotiation Meeting",
+          date: cleanDate,
+          time: n.negotiation_time || "00:00",
+        };
+      });
 
       // ✅ Combine both
       const allMeetings = [...formattedDemos, ...formattedNegotiations];
 
-      console.log("📋 All meetings before filter:", allMeetings);
+      console.log("📋 All meetings:", allMeetings);
 
-      // ✅ Remove past meetings
-      const now = new Date();
-
-      const upcomingMeetings = allMeetings.filter((m) => {
-        const meetingDateTime = new Date(`${m.date}T${m.time}`);
-        return meetingDateTime >= now;
-      });
-
-      console.log("🔮 Upcoming meetings:", upcomingMeetings);
-
-      // ✅ Sort by nearest date + time
-      upcomingMeetings.sort((a, b) => {
+      // ✅ Sort by date + time (nearest first)
+      allMeetings.sort((a, b) => {
         const aDate = new Date(`${a.date}T${a.time}`);
         const bDate = new Date(`${b.date}T${b.time}`);
         return aDate - bDate;
       });
 
-      console.log("✅ Final sorted meetings:", upcomingMeetings);
+      console.log("✅ Final sorted meetings:", allMeetings);
 
-      setMeetings(upcomingMeetings);
+      setMeetings(allMeetings);
 
     } catch (error) {
       console.error("❌ Error fetching meetings:", error);
@@ -127,9 +136,13 @@ export default function Meetings({
     }
   };
 
+  // ✅ Format date nicely
   const formatDate = (dateString) => {
+    if (!dateString) return "No date";
+    
     try {
-      return new Date(dateString).toLocaleDateString("en-US", {
+      const date = new Date(dateString);
+      return date.toLocaleDateString("en-US", {
         weekday: "short",
         month: "short",
         day: "numeric",
@@ -140,7 +153,10 @@ export default function Meetings({
     }
   };
 
+  // ✅ Format time nicely
   const formatTime = (timeString) => {
+    if (!timeString) return "No time";
+    
     try {
       const [hours, minutes] = timeString.split(":");
       const hour = parseInt(hours);
@@ -168,7 +184,9 @@ export default function Meetings({
             </button>
           </div>
         ) : meetings.length === 0 ? (
-          <p>No upcoming meetings scheduled.</p>
+          <p style={{ color: "var(--gray)", textAlign: "center", padding: "20px" }}>
+            No meetings scheduled.
+          </p>
         ) : (
           meetings.map((m) => (
             <div className="meeting-card" key={m.id}>
@@ -176,7 +194,6 @@ export default function Meetings({
                 <h3>{m.company}</h3>
                 <div className="meeting-type">{m.type}</div>
               </div>
-
               <div className="meeting-time">
                 {formatDate(m.date)} • {formatTime(m.time)}
               </div>
