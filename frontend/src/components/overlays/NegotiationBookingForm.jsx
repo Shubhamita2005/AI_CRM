@@ -19,6 +19,18 @@ export default function NegotiationBookingForm({
       return;
     }
 
+    // ✅ Create payload
+    const payload = {
+      customer_id: Number(customer.customer_id),
+      negotiation_date: meetingDate,
+      negotiation_time: meetingTime.slice(0, 5),
+      sales_rep_id: salesRepId,
+    };
+
+    // ✅ Debug logs
+    console.log("📤 Sending negotiation booking payload:", payload);
+    console.log("📊 salesRepId type:", typeof salesRepId, "| value:", salesRepId);
+
     try {
       setLoading(true);
 
@@ -29,20 +41,19 @@ export default function NegotiationBookingForm({
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({
-            customer_id: Number(customer.customer_id),
-            negotiation_date: meetingDate,
-            negotiation_time: meetingTime.slice(0, 5),
-            sales_rep_id: salesRepId,
-          }),
+          body: JSON.stringify(payload),
         }
       );
 
+      const responseData = await response.json();
+      console.log("📥 Backend response:", responseData);
+
       if (!response.ok) {
-        const errorData = await response.json();
-        alert(errorData.message || "Failed to schedule");
+        alert(responseData.message || "Failed to schedule");
         return;
       }
+
+      console.log("✅ Negotiation meeting created successfully!");
 
       // ✅ Pass booking data to parent for toast notification
       if (onSuccess) {
@@ -54,12 +65,12 @@ export default function NegotiationBookingForm({
       }
 
       onClose();
-      
+
       // Reset form
       setMeetingDate("");
       setMeetingTime("");
     } catch (error) {
-      console.error(error);
+      console.error("❌ Failed to schedule negotiation:", error);
       alert("Failed to schedule negotiation");
     } finally {
       setLoading(false);
@@ -80,7 +91,7 @@ export default function NegotiationBookingForm({
         justifyContent: "flex-end",
         zIndex: 1000,
       }}
-      onClick={onClose} // ✅ Close on backdrop click
+      onClick={onClose}
     >
       <div
         style={{
@@ -91,19 +102,21 @@ export default function NegotiationBookingForm({
           margin: "20px",
           boxShadow: "0 20px 50px rgba(0,0,0,0.2)",
         }}
-        onClick={(e) => e.stopPropagation()} // ✅ Prevent closing when clicking inside
+        onClick={(e) => e.stopPropagation()}
       >
         <h2 style={{ marginBottom: "20px", color: "#403d88" }}>
           🤝 Schedule Negotiation Meeting
         </h2>
 
-        <div style={{
-          background: "#fef3c7",
-          padding: "15px",
-          borderRadius: "12px",
-          marginBottom: "20px",
-          border: "2px solid #fbbf24"
-        }}>
+        <div
+          style={{
+            background: "#fef3c7",
+            padding: "15px",
+            borderRadius: "12px",
+            marginBottom: "20px",
+            border: "2px solid #fbbf24",
+          }}
+        >
           <p style={{ marginBottom: "8px" }}>
             <strong>Company:</strong> {customer.company}
           </p>
@@ -116,52 +129,56 @@ export default function NegotiationBookingForm({
         </div>
 
         <div style={{ marginTop: "15px" }}>
-          <label style={{ 
-            display: "block", 
-            marginBottom: "6px",
-            fontWeight: "600",
-            color: "#374151"
-          }}>
+          <label
+            style={{
+              display: "block",
+              marginBottom: "6px",
+              fontWeight: "600",
+              color: "#374151",
+            }}
+          >
             Date:
           </label>
           <input
             type="date"
             value={meetingDate}
             onChange={(e) => setMeetingDate(e.target.value)}
-            min={new Date().toISOString().split('T')[0]} // ✅ Prevent past dates
-            style={{ 
-              width: "100%", 
-              padding: "12px", 
+            min={new Date().toISOString().split("T")[0]}
+            style={{
+              width: "100%",
+              padding: "12px",
               marginTop: "5px",
               border: "2px solid #e5e7eb",
               borderRadius: "10px",
               outline: "none",
-              fontSize: "14px"
+              fontSize: "14px",
             }}
           />
         </div>
 
         <div style={{ marginTop: "15px" }}>
-          <label style={{ 
-            display: "block", 
-            marginBottom: "6px",
-            fontWeight: "600",
-            color: "#374151"
-          }}>
+          <label
+            style={{
+              display: "block",
+              marginBottom: "6px",
+              fontWeight: "600",
+              color: "#374151",
+            }}
+          >
             Time:
           </label>
           <input
             type="time"
             value={meetingTime}
             onChange={(e) => setMeetingTime(e.target.value)}
-            style={{ 
-              width: "100%", 
-              padding: "12px", 
+            style={{
+              width: "100%",
+              padding: "12px",
               marginTop: "5px",
               border: "2px solid #e5e7eb",
               borderRadius: "10px",
               outline: "none",
-              fontSize: "14px"
+              fontSize: "14px",
             }}
           />
         </div>
