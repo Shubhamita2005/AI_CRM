@@ -28,7 +28,8 @@ export default function SalesDashboard({
       setLoading(true);
       setError(null);
 
-      const data = await salesAPI.getDashboardStats();
+      // ✅ Pass salesRepId to the API
+      const data = await salesAPI.getDashboardStats(salesRepId);
 
       const statCards = [
         {
