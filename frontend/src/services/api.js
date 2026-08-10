@@ -1,4 +1,4 @@
-const API_BASE_URL = "https://ai-crm-83jh.onrender.com/api";// Change this to your backend URL
+const API_BASE_URL = "https://ai-crm-83jh.onrender.com/api";
 
 // Generic fetch function with error handling
 async function fetchAPI(endpoint, options = {}) {
@@ -83,16 +83,15 @@ export const meetingsAPI = {
     }),
 };
 
-// Sales Dashboard API
-export const salesAPI = {
-  getDashboardStats: () =>
-    fetchAPI("/dashboard/stats"), // ✅ Use existing working route
+// ✅ Manager Dashboard API
+export const statsAPI = {
+  getDashboardStats: () => fetchAPI("/dashboard/manager"),
 };
 
-// Analytics/Stats API
-export const statsAPI = {
- getDashboardStats: () => fetchAPI("/dashboard/stats"),
-  getConversionRate: () => fetchAPI("/conversion-rate/stats"),
+// ✅ Sales Rep Dashboard API
+export const salesAPI = {
+  getDashboardStats: (salesRepId) => 
+    fetchAPI(`/dashboard/sales/${salesRepId}`),
 };
 
 // ✅ Demo Booking API

@@ -13,6 +13,10 @@ router.get("/pipeline",dashboardController.getPipelineStages);
 router.get("/companies",dashboardController.getCompaniesTable);
 router.get("/company/:customerId",dashboardController.getCompanyDetails);
 router.get("/followups",dashboardController.getFollowups);
+router.get("/manager", dashboardController.getManagerDashboardStats);
+
+// ✅ Sales Rep Dashboard
+router.get("/sales/:salesRepId", dashboardController.getSalesDashboardStats);
 //salesRep
 router.get("/pipeline/:salesRepId", dashboardController.getPipelineStages);
 router.get("/followups/:salesRepId", dashboardController.getFollowups);
