@@ -38,15 +38,39 @@ router.get("/google/callback", async (req, res) => {
             );
         }
 
-        await pool.query(
-            `
-            INSERT INTO google_calendar_credentials
-                (refresh_token)
-            VALUES
-                ($1);
-            `,
-            [refreshToken]
-        );
+       const existingCredential = await pool.query(
+    `
+    SELECT id
+    FROM google_calendar_credentials
+    LIMIT 1;
+    `
+);
+
+if (existingCredential.rows.length > 0) {
+    await pool.query(
+        `
+        UPDATE google_calendar_credentials
+        SET
+            refresh_token = $1,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = $2;
+        `,
+        [
+            refreshToken,
+            existingCredential.rows[0].id
+        ]
+    );
+} else {
+    await pool.query(
+        `
+        INSERT INTO google_calendar_credentials
+            (refresh_token)
+        VALUES
+            ($1);
+        `,
+        [refreshToken]
+    );
+}
 
         res.send("Google Calendar authorization successful!");
     } catch (error) {
