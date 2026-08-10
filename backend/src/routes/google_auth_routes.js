@@ -18,18 +18,24 @@ router.get("/google", (req, res) => {
 });
 
 router.get("/google/callback", async (req, res) => {
-    try {
-        const { code } = req.query;
+  try {
+    console.log("OAuth callback query:", req.query);
 
-        const { tokens } = await oauth2Client.getToken(code);
+    const { code } = req.query;
 
-        oauth2Client.setCredentials(tokens);
-
-        res.send("Google Calendar authorization successful!");
-    } catch (error) {
-        console.error("Google OAuth error:", error);
-        res.status(500).send("Google authorization failed.");
+    if (!code) {
+      return res.status(400).send("No authorization code received from Google.");
     }
+
+    const { tokens } = await oauth2Client.getToken(code);
+
+    oauth2Client.setCredentials(tokens);
+
+    res.send("Google Calendar authorization successful!");
+  } catch (error) {
+    console.error("Google OAuth error:", error);
+    res.status(500).send("Google authorization failed.");
+  }
 });
 
 module.exports = router;
