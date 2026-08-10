@@ -28,7 +28,6 @@ export default function SalesDashboard({
       setLoading(true);
       setError(null);
 
-      // ✅ Using existing dashboard stats route (no 404)
       const data = await salesAPI.getDashboardStats();
 
       const statCards = [
@@ -60,11 +59,19 @@ export default function SalesDashboard({
     }
   };
 
+  // ✅ Get time-based greeting
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Good Morning";
+    if (hour < 18) return "Good Afternoon";
+    return "Good Evening";
+  };
+
   return (
     <div className="page active">
-      {/* ✅ Hero Section */}
+      {/* ✅ Generic Hero Section */}
       <Hero
-        title="Good Morning, Sales Representative 👋"
+        title={`${getGreeting()}, Sales Representative 👋`}
         subtitle="Welcome back to FlowCRM AI. You have trial accounts that need attention today. Let AI Copilot help you prioritize follow-ups, prepare for meetings, and close more deals."
       />
 
@@ -99,11 +106,9 @@ export default function SalesDashboard({
 
       {/* ✅ Followups BELOW Pipeline */}
       <div style={{ marginTop: "30px" }}>
-        <Followups
-          title="My Follow-ups"
-          salesRepId={salesRepId}
-        />
+        <Followups title="My Follow-ups" salesRepId={salesRepId} />
       </div>
+
       <DemoBookings salesRepId={salesRepId} />
 
       {/* ✅ Companies Table */}

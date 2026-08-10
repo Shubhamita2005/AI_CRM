@@ -200,7 +200,9 @@ export default function App() {
                 />
               ))}
 
-            {!pageView && activePage === "meetings" && <Meetings />}
+           {!pageView && activePage === "meetings" && (
+  <Meetings salesRepId={salesRepId} />
+)}
             {!pageView && activePage === "activities" && <Activities />}
             {!pageView &&
               activePage === "reports" &&

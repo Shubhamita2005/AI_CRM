@@ -19,6 +19,19 @@ export default function DemoBookingForm({
       return;
     }
 
+    // ✅ Create payload object
+    const payload = {
+      customer_id: Number(customer.customer_id),
+      demo_date: meetingDate,
+      demo_time: meetingTime.slice(0, 5),
+      sales_rep_id: salesRepId,
+    };
+
+    // ✅ Debug logs - CHECK CONSOLE
+    console.log("📤 Sending demo booking payload:", payload);
+    console.log("📊 salesRepId type:", typeof salesRepId, "| value:", salesRepId);
+    console.log("🔢 customer_id:", customer.customer_id);
+
     try {
       setLoading(true);
 
@@ -29,20 +42,19 @@ export default function DemoBookingForm({
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({
-            customer_id: Number(customer.customer_id),
-            demo_date: meetingDate,
-            demo_time: meetingTime.slice(0, 5),
-            sales_rep_id: salesRepId,
-          }),
+          body: JSON.stringify(payload),
         }
       );
 
+      const responseData = await response.json();
+      console.log("📥 Backend response:", responseData);
+
       if (!response.ok) {
-        const errorData = await response.json();
-        alert(errorData.message || "Failed to schedule");
+        alert(responseData.message || "Failed to schedule");
         return;
       }
+
+      console.log("✅ Demo booking created successfully!");
 
       // ✅ Pass booking data to parent for toast notification
       if (onSuccess) {
@@ -54,12 +66,12 @@ export default function DemoBookingForm({
       }
 
       onClose();
-      
+
       // Reset form
       setMeetingDate("");
       setMeetingTime("");
     } catch (error) {
-      console.error("Failed to schedule meeting:", error);
+      console.error("❌ Failed to schedule meeting:", error);
       alert("Failed to schedule meeting");
     } finally {
       setLoading(false);
@@ -80,7 +92,7 @@ export default function DemoBookingForm({
         justifyContent: "flex-end",
         zIndex: 1000,
       }}
-      onClick={onClose} // ✅ Close on backdrop click
+      onClick={onClose}
     >
       <div
         style={{
@@ -91,18 +103,20 @@ export default function DemoBookingForm({
           margin: "20px",
           boxShadow: "0 20px 50px rgba(0,0,0,0.2)",
         }}
-        onClick={(e) => e.stopPropagation()} // ✅ Prevent closing when clicking inside
+        onClick={(e) => e.stopPropagation()}
       >
         <h2 style={{ marginBottom: "20px", color: "#403d88" }}>
           📅 Schedule Demo Meeting
         </h2>
 
-        <div style={{
-          background: "#f8f8fb",
-          padding: "15px",
-          borderRadius: "12px",
-          marginBottom: "20px"
-        }}>
+        <div
+          style={{
+            background: "#f8f8fb",
+            padding: "15px",
+            borderRadius: "12px",
+            marginBottom: "20px",
+          }}
+        >
           <p style={{ marginBottom: "8px" }}>
             <strong>Company:</strong> {customer.company}
           </p>
@@ -115,52 +129,56 @@ export default function DemoBookingForm({
         </div>
 
         <div style={{ marginTop: "15px" }}>
-          <label style={{ 
-            display: "block", 
-            marginBottom: "6px",
-            fontWeight: "600",
-            color: "#374151"
-          }}>
+          <label
+            style={{
+              display: "block",
+              marginBottom: "6px",
+              fontWeight: "600",
+              color: "#374151",
+            }}
+          >
             Date:
           </label>
           <input
             type="date"
             value={meetingDate}
             onChange={(e) => setMeetingDate(e.target.value)}
-            min={new Date().toISOString().split('T')[0]} // ✅ Prevent past dates
-            style={{ 
-              width: "100%", 
-              padding: "12px", 
+            min={new Date().toISOString().split("T")[0]}
+            style={{
+              width: "100%",
+              padding: "12px",
               marginTop: "5px",
               border: "2px solid #e5e7eb",
               borderRadius: "10px",
               outline: "none",
-              fontSize: "14px"
+              fontSize: "14px",
             }}
           />
         </div>
 
         <div style={{ marginTop: "15px" }}>
-          <label style={{ 
-            display: "block", 
-            marginBottom: "6px",
-            fontWeight: "600",
-            color: "#374151"
-          }}>
+          <label
+            style={{
+              display: "block",
+              marginBottom: "6px",
+              fontWeight: "600",
+              color: "#374151",
+            }}
+          >
             Time:
           </label>
           <input
             type="time"
             value={meetingTime}
             onChange={(e) => setMeetingTime(e.target.value)}
-            style={{ 
-              width: "100%", 
-              padding: "12px", 
+            style={{
+              width: "100%",
+              padding: "12px",
               marginTop: "5px",
               border: "2px solid #e5e7eb",
               borderRadius: "10px",
               outline: "none",
-              fontSize: "14px"
+              fontSize: "14px",
             }}
           />
         </div>

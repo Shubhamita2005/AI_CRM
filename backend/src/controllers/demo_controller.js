@@ -4,12 +4,19 @@ const createDemoBooking = async (req, res) => {
 
     try {
 
-        const {
-            customer_id,
-            demo_date,
-            demo_time
-        } = req.body;
+       const {
+    customer_id,
+    demo_date,
+    demo_time,
+    sales_rep_id // ✅ This line
+} = req.body;
 
+console.log("📥 Received demo booking request:", {
+    customer_id,
+    demo_date,
+    demo_time,
+    sales_rep_id
+});
         // Basic validation
         if (!customer_id || !demo_date || !demo_time) {
             return res.status(400).json({
@@ -20,7 +27,8 @@ const createDemoBooking = async (req, res) => {
         const booking = await demoService.createDemoBooking({
             customerId: customer_id,
             demoDate: demo_date,
-            demoTime: demo_time
+            demoTime: demo_time,
+            salesRepId: sales_rep_id 
         });
 
         res.status(201).json({

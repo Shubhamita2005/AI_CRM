@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { activitiesAPI } from "../../services/api";
 import DemoBookingForm from "../overlays/DemoBookingForm";
 import NegotiationBookingForm from "../overlays/NegotiationBookingForm";
@@ -42,31 +42,57 @@ export default function Followups({
     }
   };
 
-  const fetchBookings = async () => {
+ const fetchBookings = async () => {
+  try {
+    // ✅ Fetch demo bookings
+    let demoData = [];
     try {
       const demoRes = await fetch(
         "https://ai-crm-83jh.onrender.com/api/demo-bookings"
       );
-      const demoData = await demoRes.json();
-      setDemoBookings(Array.isArray(demoData) ? demoData : []);
+      if (demoRes.ok) {
+        demoData = await demoRes.json();
+      } else {
+        console.warn("⚠️ Demo bookings endpoint returned:", demoRes.status);
+      }
+    } catch (err) {
+      console.warn("⚠️ Could not fetch demo bookings:", err.message);
+    }
 
+    setDemoBookings(Array.isArray(demoData) ? demoData : []);
+
+    // ✅ Fetch negotiation meetings (with proper error handling)
+    let negotiationData = [];
+    try {
       const negotiationRes = await fetch(
         "https://ai-crm-83jh.onrender.com/api/negotiation-meetings"
       );
-      const negotiationData = await negotiationRes.json();
-      setNegotiationBookings(
-        Array.isArray(negotiationData) ? negotiationData : []
-      );
-    } catch (error) {
-      console.error("Failed to fetch bookings:", error);
+      
+      if (negotiationRes.ok) {
+        const contentType = negotiationRes.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+          negotiationData = await negotiationRes.json();
+        } else {
+          console.warn("⚠️ Negotiation endpoint returned non-JSON response");
+        }
+      } else {
+        console.warn("⚠️ Negotiation meetings endpoint not available (404)");
+      }
+    } catch (err) {
+      console.warn("⚠️ Could not fetch negotiation meetings:", err.message);
     }
-  };
+
+    setNegotiationBookings(Array.isArray(negotiationData) ? negotiationData : []);
+
+  } catch (error) {
+    console.error("Failed to fetch bookings:", error);
+  }
+};
 
   const toggleExpand = (id) => {
     setExpandedId(expandedId === id ? null : id);
   };
 
-  // ✅ NEW: Format date helper function
   const formatDate = (dateString) => {
     if (!dateString) return "N/A";
     
@@ -83,12 +109,10 @@ export default function Followups({
     }
   };
 
-  // ✅ NEW: Format time helper function
   const formatTime = (timeString) => {
     if (!timeString) return "N/A";
     
     try {
-      // Handle both "HH:MM:SS" and "HH:MM" formats
       const [hours, minutes] = timeString.split(":");
       const hour = parseInt(hours);
       const ampm = hour >= 12 ? "PM" : "AM";
@@ -115,11 +139,9 @@ export default function Followups({
     };
 
     setToast({ ...messages[type], type });
-
     setTimeout(() => setToast(null), 3000);
   };
 
-  /* ================= LOADING ================= */
   if (loading) {
     return (
       <div className="followups">
@@ -129,7 +151,6 @@ export default function Followups({
     );
   }
 
-  /* ================= ERROR ================= */
   if (error) {
     return (
       <div className="followups">
@@ -162,7 +183,11 @@ export default function Followups({
           followups.map((item) => {
             const id = item.recommendation_id || item.id;
             const expanded = expandedId === id;
-            const isLongText = item.note && item.note.length > 120;
+            
+            // ✅ Better detection: check if text is actually long
+            const noteText = item.note || "No details available.";
+            const noteLines = noteText.split('\n').length;
+            const isLongText = noteText.length > 150 || noteLines > 3; // ✅ Increased threshold
 
             const demoBooking = demoBookings.find(
               (b) => Number(b.customer_id) === Number(item.customer_id)
@@ -197,7 +222,7 @@ export default function Followups({
                 </div>
 
                 <p className={expanded ? "followup-note expanded" : "followup-note"}>
-                  {item.note || "No details available."}
+                  {noteText}
                 </p>
 
                 <div className="followup-footer">
@@ -290,7 +315,6 @@ export default function Followups({
         )}
       </div>
 
-      {/* ✅ Custom Toast Notification */}
       {toast && (
         <div className={`custom-toast ${toast.type}`}>
           <div className="custom-toast-icon">{toast.icon}</div>
@@ -301,7 +325,6 @@ export default function Followups({
         </div>
       )}
 
-      {/* ✅ Booking Details Popup - NOW WITH FORMATTED DATES */}
       {popupBooking && (
         <div
           style={{
