@@ -1,5 +1,6 @@
 const pool = require("../config/database");
 const { getGoogleCalendar } = require("./google_calendar_service");
+const { sendEmail } = require("./gmail_service");
 
 const createDemoBooking = async ({
     customerId,
@@ -129,6 +130,36 @@ await pool.query(
         result.rows[0].demo_id
     ]
 );
+// 5. Send demo confirmation email
+await sendEmail({
+    to: customer.email,
+    subject: "Your demo has been scheduled",
+    html: `
+        <h2>Your demo is confirmed</h2>
+
+        <p>Hi ${customer.first_name},</p>
+
+        <p>
+            Your demo with ${customer.company_name} has been scheduled.
+        </p>
+
+        <p>
+            <strong>Date:</strong> ${demoDate}<br>
+            <strong>Time:</strong> ${demoTime}
+        </p>
+
+        <p>
+            <strong>Google Meet:</strong>
+            <a href="${meetingLink}">
+                Join the meeting
+            </a>
+        </p>
+
+        <p>
+            We look forward to speaking with you.
+        </p>
+    `
+});
 await pool.query(
     `
     UPDATE customers
