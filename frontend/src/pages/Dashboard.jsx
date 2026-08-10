@@ -87,8 +87,6 @@ export default function Dashboard({
         onViewCompany={onViewCompany}
       />
 
-      <Followups />
-
       <CompaniesTable
         onView={onViewCompany}
         onAddCompany={onAddCompany}

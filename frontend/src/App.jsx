@@ -137,7 +137,7 @@ export default function App() {
               : [
                   { id: "dashboard", label: "🏠 Dashboard" },
                   { id: "companies", label: "🏢 Companies" },
-                  { id: "meetings", label: "📅 Meetings" },
+                 // { id: "meetings", label: "📅 Meetings" },
                   { id: "activities", label: "📝 Activities" },
                   { id: "settings", label: "⚙ Settings" },
                 ]

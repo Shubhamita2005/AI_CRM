@@ -3,6 +3,7 @@ const cors = require("cors");
 
 const dashboardRoutes = require("./routes/dashboard_routes");
 const demoRoutes = require("./routes/demo_routes");
+const negotiationRoutes = require("./routes/negotiation_routes");
 const googleAuthRoutes = require("./routes/google_auth_routes");
 
 const app = express();
@@ -17,6 +18,7 @@ app.get("/", (req, res) => {
 
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/demo-bookings", demoRoutes);
+app.use("/api/negotiation-meetings", negotiationRoutes);
 app.use("/api/auth", googleAuthRoutes);
 
 module.exports = app;
