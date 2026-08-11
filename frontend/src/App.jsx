@@ -23,6 +23,9 @@ import CompanyModal from "./components/overlays/CompanyModal";
 import EmailModal from "./components/overlays/EmailModal";
 import Toast from "./components/overlays/Toast";
 
+// ✅ Import CompaniesTable for the companies page
+import CompaniesTable from "./components/dashboard/CompaniesTable";
+
 import { activitiesAPI } from "./services/api";
 
 export default function App() {
@@ -51,12 +54,12 @@ export default function App() {
     if (user) {
       fetchNotifications();
     }
-  }, [user]); // ✅ Fixed: was 'role', now 'user'
+  }, [user]);
 
   const fetchNotifications = async () => {
     try {
       const data = await activitiesAPI.getFollowups(
-        isSales ? salesRepId : null // ✅ Pass dynamic sales rep ID
+        isSales ? salesRepId : null
       );
       setNotifications(data?.slice(0, 3) || []);
     } catch (err) {
@@ -82,9 +85,7 @@ export default function App() {
       console.error("No customer_id provided to viewCompany");
       return;
     }
-
     console.log("Viewing company:", customer_id);
-
     setPageView({
       type: "company",
       customer_id: customer_id,
@@ -138,7 +139,6 @@ export default function App() {
               : [
                   { id: "dashboard", label: "🏠 Dashboard" },
                   { id: "companies", label: "🏢 Companies" },
-                 // { id: "meetings", label: "📅 Meetings" },
                   { id: "activities", label: "📝 Activities" },
                   { id: "settings", label: "⚙ Settings" },
                 ]
@@ -190,7 +190,7 @@ export default function App() {
                   onAddCompany={() => setCompanyModalOpen(true)}
                   onViewStage={viewStage}
                   onViewCompany={viewCompany}
-                  salesRepId={salesRepId} // ✅ Pass dynamic ID
+                  salesRepId={salesRepId}
                 />
               ) : (
                 <Dashboard
@@ -201,23 +201,57 @@ export default function App() {
                 />
               ))}
 
-           {!pageView && activePage === "meetings" && (
-  <Meetings salesRepId={salesRepId} />
-)}
+            {/* ✅ COMPANIES PAGE - Different for each role */}
+            {!pageView && activePage === "companies" && (
+              isSales ? (
+                // ✅ Sales Rep sees only their companies
+                <div className="page active">
+                  <CompaniesTable
+                    onView={viewCompany}
+                    onAddCompany={() => setCompanyModalOpen(true)}
+                    title="🏢 My Companies"
+                    searchPlaceholder="Search my companies..."
+                    addLabel="Add Lead"
+                    salesRepId={salesRepId}
+                  />
+                </div>
+              ) : (
+                // ✅ Manager sees all companies
+                <div className="page active">
+                  <CompaniesTable
+                    onView={viewCompany}
+                    onAddCompany={() => setCompanyModalOpen(true)}
+                    title="🏢 All Companies"
+                    searchPlaceholder="Search companies..."
+                    addLabel="Add Company"
+                  />
+                </div>
+              )
+            )}
+
+            {/* ✅ MEETINGS - Sales Rep Only */}
+            {!pageView && activePage === "meetings" && isSales && (
+              <Meetings salesRepId={salesRepId} />
+            )}
+
+            {/* ✅ ACTIVITIES - Different for each role */}
             {!pageView && activePage === "activities" && (
-  isSales
-    ? <SalesActivities />
-    : <Activities />
-)}
+              isSales
+                ? <SalesActivities />
+                : <Activities />
+            )}
+
+            {/* ✅ REPORTS */}
             {!pageView &&
               activePage === "reports" &&
               (isSales ? <SalesReports /> : null)}
 
+            {/* ✅ SETTINGS */}
             {!pageView && activePage === "settings" && (
               <Settings
                 darkMode={darkMode}
                 setDarkMode={setDarkMode}
-                onLogout={() => setUser(null)} // ✅ Fixed: was setRole
+                onLogout={() => setUser(null)}
               />
             )}
           </div>

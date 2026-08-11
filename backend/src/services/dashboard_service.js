@@ -180,24 +180,34 @@ const getPipelineStages = async (salesRepId = null) => {
     ];
 };
 
-const getCompaniesTable = async () => {
-    const result = await pool.query(`
+const getCompaniesTable = async (salesRepId = null) => {
+
+    let query = `
         SELECT
             c.customer_id AS id,
             c.company_name AS name,
             c.industry,
             c.company_size AS size,
             c.country AS location,
-            COALESCE(
-                fr.estimated_conversion_probability,
-                0
-            ) AS score
+            c.sales_rep_id,
+            c.current_stage AS stage,
+            c.status,
+            COALESCE(fr.estimated_conversion_probability, 0) AS score
         FROM customers c
         LEFT JOIN followup_recommendations fr
             ON c.customer_id = fr.customer_id
-        ORDER BY c.company_name;
-    `);
+    `;
 
+    const values = [];
+
+    if (salesRepId) {
+        query += ` WHERE c.sales_rep_id = $1`;
+        values.push(salesRepId);
+    }
+
+    query += ` ORDER BY c.company_name;`;
+
+    const result = await pool.query(query, values);
     return result.rows;
 };
 

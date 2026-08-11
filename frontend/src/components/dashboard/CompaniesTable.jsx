@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
 import { companiesAPI } from "../../services/api";
 
-export default function CompaniesTable({ 
-  onView, 
-  onAddCompany, 
-  title = "🏢 Companies", 
+export default function CompaniesTable({
+  onView,
+  onAddCompany,
+  title = "🏢 Companies",
   searchPlaceholder = "Search companies",
   addLabel = "Add Company",
-  salesRepId = null // ✅ Accept dynamic ID
+  salesRepId = null,
 }) {
   const [companies, setCompanies] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -15,7 +15,6 @@ export default function CompaniesTable({
   const [searchTerm, setSearchTerm] = useState("");
   const [visibleCount, setVisibleCount] = useState(5);
 
-  // ✅ Fetch companies when component mounts or salesRepId changes
   useEffect(() => {
     fetchCompanies();
   }, [salesRepId]);
@@ -23,15 +22,16 @@ export default function CompaniesTable({
   const fetchCompanies = async () => {
     try {
       setLoading(true);
-      const data = await companiesAPI.getAll();
-
-      // ✅ Filter by salesRepId if provided
-      const filtered = salesRepId
-        ? data.filter((c) => c.sales_rep_id === salesRepId)
-        : data;
-
-      setCompanies(filtered);
       setError(null);
+
+      // ✅ Use separate functions based on whether salesRepId exists
+      const data = salesRepId
+        ? await companiesAPI.getBySalesRep(salesRepId)  // ✅ Sales Rep view
+        : await companiesAPI.getAll();                   // ✅ Manager view
+
+      console.log("✅ Companies received from backend:", data.length);
+
+      setCompanies(Array.isArray(data) ? data : []);
     } catch (err) {
       setError("Failed to load companies");
       console.error(err);
@@ -40,22 +40,16 @@ export default function CompaniesTable({
     }
   };
 
-  const filteredCompanies = companies.filter((company) =>
-    company.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    company.industry.toLowerCase().includes(searchTerm.toLowerCase())
+  // ✅ Only search filter on frontend
+  const filteredCompanies = companies.filter(
+    (company) =>
+      (company.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (company.industry || "").toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const visibleCompanies = filteredCompanies.slice(0, visibleCount);
   const hasMore = visibleCount < filteredCompanies.length;
   const canShowLess = visibleCount > 5;
-
-  const loadMore = () => {
-    setVisibleCount(prev => prev + 5);
-  };
-
-  const showLess = () => {
-    setVisibleCount(5);
-  };
 
   if (loading) {
     return (
@@ -79,7 +73,11 @@ export default function CompaniesTable({
         <p style={{ textAlign: "center", color: "red", padding: "40px" }}>
           {error}
           <br />
-          <button className="ai-btn" onClick={fetchCompanies} style={{ marginTop: "10px" }}>
+          <button
+            className="ai-btn"
+            onClick={fetchCompanies}
+            style={{ marginTop: "10px" }}
+          >
             Retry
           </button>
         </p>
@@ -100,9 +98,9 @@ export default function CompaniesTable({
             style={{
               padding: "8px 12px",
               borderRadius: "6px",
-              border: "1px solid var(--border)",
-              backgroundColor: "var(--card-bg)",
-              color: "var(--text)",
+              border: "1px solid #e5e7eb",
+              fontSize: "14px",
+              outline: "none",
             }}
           />
           <button className="ai-btn" onClick={onAddCompany}>
@@ -118,6 +116,7 @@ export default function CompaniesTable({
             <th>Industry</th>
             <th>Size</th>
             <th>Location</th>
+            <th>Stage</th>
             <th>AI Score</th>
             <th>Action</th>
           </tr>
@@ -125,33 +124,90 @@ export default function CompaniesTable({
         <tbody>
           {visibleCompanies.length === 0 ? (
             <tr>
-              <td colSpan="6" style={{ textAlign: "center", color: "var(--gray)" }}>
-                {searchTerm ? "No matching companies found" : "No companies assigned"}
+              <td
+                colSpan="7"
+                style={{
+                  textAlign: "center",
+                  color: "var(--gray)",
+                  padding: "30px",
+                }}
+              >
+                {searchTerm
+                  ? "No matching companies found"
+                  : salesRepId
+                  ? "No companies assigned to you"
+                  : "No companies found"}
               </td>
             </tr>
           ) : (
             visibleCompanies.map((company) => (
-              <tr key={company._id || company.id}>
-                <td><strong>{company.name}</strong></td>
-                <td>{company.industry}</td>
-                <td>{company.size}</td>
-                <td>{company.location}</td>
+              <tr key={company.id}>
                 <td>
-                  <span 
+                  <strong>{company.name}</strong>
+                </td>
+                <td>{company.industry || "N/A"}</td>
+                <td>{company.size || "N/A"}</td>
+                <td>{company.location || "N/A"}</td>
+                <td>
+                  <span
+                    style={{
+                      padding: "4px 10px",
+                      borderRadius: "999px",
+                      fontSize: "12px",
+                      fontWeight: "600",
+                      background:
+                        company.stage === "Closed Won" ||
+                        company.stage === "Subscribed"
+                          ? "#dcfce7"
+                          : company.stage === "Negotiation"
+                          ? "#fef3c7"
+                          : company.stage === "Demo Booked"
+                          ? "#ede9fe"
+                          : company.stage === "Trial"
+                          ? "#dbeafe"
+                          : "#f3f4f6",
+                      color:
+                        company.stage === "Closed Won" ||
+                        company.stage === "Subscribed"
+                          ? "#166534"
+                          : company.stage === "Negotiation"
+                          ? "#92400e"
+                          : company.stage === "Demo Booked"
+                          ? "#5b21b6"
+                          : company.stage === "Trial"
+                          ? "#1e40af"
+                          : "#374151",
+                    }}
+                  >
+                    {company.stage || "Lead"}
+                  </span>
+                </td>
+                <td>
+                  <span
                     style={{
                       padding: "4px 8px",
                       borderRadius: "4px",
-                      backgroundColor: company.score >= 70 ? "#e8f5e9" : company.score >= 40 ? "#fff8e1" : "#ffebee",
-                      color: company.score >= 70 ? "#2e7d32" : company.score >= 40 ? "#f57c00" : "#c62828",
-                      fontWeight: "600"
+                      backgroundColor:
+                        company.score >= 70
+                          ? "#e8f5e9"
+                          : company.score >= 40
+                          ? "#fff8e1"
+                          : "#ffebee",
+                      color:
+                        company.score >= 70
+                          ? "#2e7d32"
+                          : company.score >= 40
+                          ? "#f57c00"
+                          : "#c62828",
+                      fontWeight: "600",
                     }}
                   >
                     {company.score}%
                   </span>
                 </td>
                 <td>
-                  <button 
-                    className="ai-btn" 
+                  <button
+                    className="ai-btn"
                     onClick={() => onView(company.id)}
                     style={{ padding: "6px 12px", fontSize: "14px" }}
                   >
@@ -164,23 +220,22 @@ export default function CompaniesTable({
         </tbody>
       </table>
 
-      {/* ✅ Show More / Show Less Buttons */}
+      {/* Show More / Show Less */}
       {(hasMore || canShowLess) && (
-        <div style={{ marginTop: "20px", display: "flex", gap: "10px", alignItems: "center" }}>
+        <div style={{ marginTop: "20px", display: "flex", gap: "10px" }}>
           {hasMore && (
-            <button className="ai-btn" onClick={loadMore}>
+            <button
+              className="ai-btn"
+              onClick={() => setVisibleCount((prev) => prev + 5)}
+            >
               Show More ({filteredCompanies.length - visibleCount} remaining)
             </button>
           )}
-          
           {canShowLess && (
-            <button 
-              className="ai-btn" 
-              onClick={showLess}
-              style={{ 
-                background: "var(--gray)", 
-                color: "white" 
-              }}
+            <button
+              className="ai-btn"
+              onClick={() => setVisibleCount(5)}
+              style={{ background: "#6b7280" }}
             >
               Show Less
             </button>
@@ -188,9 +243,12 @@ export default function CompaniesTable({
         </div>
       )}
 
-      {!hasMore && !canShowLess && filteredCompanies.length > 5 && (
-        <p style={{ marginTop: "20px", color: "var(--gray)" }}>
-          Showing all {filteredCompanies.length} companies
+      {filteredCompanies.length > 0 && (
+        <p
+          style={{ marginTop: "16px", color: "var(--gray)", fontSize: "14px" }}
+        >
+          Showing {Math.min(visibleCount, filteredCompanies.length)} of{" "}
+          {filteredCompanies.length} companies
         </p>
       )}
     </div>

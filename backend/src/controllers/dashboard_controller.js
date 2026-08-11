@@ -73,6 +73,27 @@ const getCompaniesTable = async (req, res) => {
     }
 };
 
+// ✅ Fetch companies by Sales Rep ID (Sales Rep view)
+const getCompaniesTableBySalesRep = async (req, res) => {
+  try {
+    const { salesRepId } = req.query;
+
+    if (!salesRepId) {
+      return res.status(400).json({ message: "salesRepId is required" });
+    }
+
+    console.log("🏢 Fetching companies for sales rep:", salesRepId);
+
+    const companies = await dashboardService.getCompaniesTableBySalesRep(salesRepId);
+    res.status(200).json(companies);
+  } catch (error) {
+    console.error("Error in getCompaniesTableBySalesRep:", error);
+    res.status(500).json({
+      message: "Failed to fetch companies for sales rep.",
+    });
+  }
+};
+
 const getCompanyDetails = async (req, res) => {
     try {
         const { customerId } = req.params;
@@ -141,6 +162,7 @@ module.exports = {
   getRecommendations,
   getPipelineStages,
   getCompaniesTable,
+  getCompaniesTableBySalesRep, 
   getCompanyDetails,
   getFollowups,
   getManagerDashboardStats,     // ✅ Add

@@ -23,12 +23,19 @@ async function fetchAPI(endpoint, options = {}) {
   }
 }
 
-// Companies API
+// ✅ Companies API
 export const companiesAPI = {
+  // Fetch all companies (Manager view)
   getAll: () => fetchAPI("/dashboard/companies"),
+
+  // ✅ Fetch companies by sales rep ID (Sales Rep view)
+  getBySalesRep: (salesRepId) =>
+    fetchAPI(`/dashboard/companies?salesRepId=${salesRepId}`),
+
   getById: (id) => fetchAPI(`/companies/${id}`),
   getByName: (name) => fetchAPI(`/companies/name/${encodeURIComponent(name)}`),
-  getCompanyDetails: (customerId) => fetchAPI(`/dashboard/company/${customerId}`),
+  getCompanyDetails: (customerId) =>
+    fetchAPI(`/dashboard/company/${customerId}`),
   create: (companyData) =>
     fetchAPI("/companies", {
       method: "POST",
@@ -45,7 +52,7 @@ export const companiesAPI = {
     }),
 };
 
-// Pipeline/Stages API
+// ✅ Pipeline/Stages API
 export const pipelineAPI = {
   getStages: (salesRepId = null) =>
     fetchAPI(
@@ -61,7 +68,7 @@ export const pipelineAPI = {
     }),
 };
 
-// Activities / Followups API
+// ✅ Activities / Followups API
 export const activitiesAPI = {
   getFollowups: (salesRepId = null) =>
     fetchAPI(
@@ -73,7 +80,7 @@ export const activitiesAPI = {
   getActivities: () => fetchAPI("/dashboard/activities"),
 };
 
-// Meetings API
+// ✅ Meetings API
 export const meetingsAPI = {
   getAll: () => fetchAPI("/meetings"),
   create: (meetingData) =>
@@ -90,7 +97,7 @@ export const statsAPI = {
 
 // ✅ Sales Rep Dashboard API
 export const salesAPI = {
-  getDashboardStats: (salesRepId) => 
+  getDashboardStats: (salesRepId) =>
     fetchAPI(`/dashboard/sales/${salesRepId}`),
 };
 
