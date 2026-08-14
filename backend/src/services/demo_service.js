@@ -140,7 +140,7 @@ await sendEmail({
         <p>Hi ${customer.first_name},</p>
 
         <p>
-            Your demo with ${customer.company_name} has been scheduled.
+            Your demo for ${customer.company_name} has been scheduled.
         </p>
 
         <p>
