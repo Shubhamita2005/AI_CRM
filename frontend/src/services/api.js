@@ -105,3 +105,9 @@ export const salesAPI = {
 export const demoBookingAPI = {
   getAll: () => fetchAPI("/demo-bookings"),
 };
+
+// ✅ Call API
+export const callAPI = {
+  getCustomerPhone: (customerId) =>
+    fetchAPI(`/calls/phone/${customerId}`),
+};

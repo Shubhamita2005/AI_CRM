@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { activitiesAPI } from "../../services/api";
+import { activitiesAPI, callAPI } from "../../services/api";
 import DemoBookingForm from "../overlays/DemoBookingForm";
 import NegotiationBookingForm from "../overlays/NegotiationBookingForm";
 
@@ -22,6 +22,9 @@ export default function Followups({
 
   const [toast, setToast] = useState(null);
 
+  // ✅ Track which customer is currently being called
+  const [callingId, setCallingId] = useState(null);
+
   useEffect(() => {
     fetchFollowups();
     fetchBookings();
@@ -42,52 +45,83 @@ export default function Followups({
     }
   };
 
- const fetchBookings = async () => {
-  try {
-    // ✅ Fetch demo bookings
-    let demoData = [];
+  const fetchBookings = async () => {
     try {
-      const demoRes = await fetch(
-        "https://ai-crm-83jh.onrender.com/api/demo-bookings"
-      );
-      if (demoRes.ok) {
-        demoData = await demoRes.json();
-      } else {
-        console.warn("⚠️ Demo bookings endpoint returned:", demoRes.status);
-      }
-    } catch (err) {
-      console.warn("⚠️ Could not fetch demo bookings:", err.message);
-    }
-
-    setDemoBookings(Array.isArray(demoData) ? demoData : []);
-
-    // ✅ Fetch negotiation meetings (with proper error handling)
-    let negotiationData = [];
-    try {
-      const negotiationRes = await fetch(
-        "https://ai-crm-83jh.onrender.com/api/negotiation-meetings"
-      );
-      
-      if (negotiationRes.ok) {
-        const contentType = negotiationRes.headers.get("content-type");
-        if (contentType && contentType.includes("application/json")) {
-          negotiationData = await negotiationRes.json();
+      // ✅ Fetch demo bookings
+      let demoData = [];
+      try {
+        const demoRes = await fetch(
+          "https://ai-crm-83jh.onrender.com/api/demo-bookings"
+        );
+        if (demoRes.ok) {
+          demoData = await demoRes.json();
         } else {
-          console.warn("⚠️ Negotiation endpoint returned non-JSON response");
+          console.warn("⚠️ Demo bookings endpoint returned:", demoRes.status);
         }
-      } else {
-        console.warn("⚠️ Negotiation meetings endpoint not available (404)");
+      } catch (err) {
+        console.warn("⚠️ Could not fetch demo bookings:", err.message);
       }
-    } catch (err) {
-      console.warn("⚠️ Could not fetch negotiation meetings:", err.message);
+
+      setDemoBookings(Array.isArray(demoData) ? demoData : []);
+
+      // ✅ Fetch negotiation meetings
+      let negotiationData = [];
+      try {
+        const negotiationRes = await fetch(
+          "https://ai-crm-83jh.onrender.com/api/negotiation-meetings"
+        );
+
+        if (negotiationRes.ok) {
+          const contentType = negotiationRes.headers.get("content-type");
+          if (contentType && contentType.includes("application/json")) {
+            negotiationData = await negotiationRes.json();
+          } else {
+            console.warn("⚠️ Negotiation endpoint returned non-JSON response");
+          }
+        } else {
+          console.warn("⚠️ Negotiation meetings endpoint not available (404)");
+        }
+      } catch (err) {
+        console.warn("⚠️ Could not fetch negotiation meetings:", err.message);
+      }
+
+      setNegotiationBookings(
+        Array.isArray(negotiationData) ? negotiationData : []
+      );
+    } catch (error) {
+      console.error("Failed to fetch bookings:", error);
     }
+  };
 
-    setNegotiationBookings(Array.isArray(negotiationData) ? negotiationData : []);
+  // ✅ Handle Call Button Click
+  const handleCall = async (customerId, companyName) => {
+    try {
+      setCallingId(customerId);
 
-  } catch (error) {
-    console.error("Failed to fetch bookings:", error);
-  }
-};
+      // 1. Fetch phone number from backend
+      const data = await callAPI.getCustomerPhone(customerId);
+      const phoneNumber = data.phone_number;
+
+      if (!phoneNumber) {
+        showCallToast("error", companyName, "No phone number found for this customer.");
+        return;
+      }
+
+      console.log("📞 Calling:", phoneNumber);
+
+      // 2. Show calling toast
+      showCallToast("calling", companyName, phoneNumber);
+
+      // 3. Open phone dialer with number pre-filled
+      window.open(`tel:${phoneNumber}`);
+
+    } catch (error) {
+      console.error("Call failed:", error);
+      showCallToast("error", companyName, "Failed to get customer phone number.");
+    } finally {
+      setCallingId(null);
+    }
+  };
 
   const toggleExpand = (id) => {
     setExpandedId(expandedId === id ? null : id);
@@ -95,7 +129,7 @@ export default function Followups({
 
   const formatDate = (dateString) => {
     if (!dateString) return "N/A";
-    
+
     try {
       const date = new Date(dateString);
       return date.toLocaleDateString("en-US", {
@@ -111,13 +145,13 @@ export default function Followups({
 
   const formatTime = (timeString) => {
     if (!timeString) return "N/A";
-    
+
     try {
       const [hours, minutes] = timeString.split(":");
       const hour = parseInt(hours);
       const ampm = hour >= 12 ? "PM" : "AM";
       const displayHour = hour % 12 || 12;
-      
+
       return `${displayHour}:${minutes} ${ampm}`;
     } catch (error) {
       return timeString;
@@ -129,16 +163,41 @@ export default function Followups({
       demo: {
         icon: "🎉",
         title: "Demo Successfully Booked!",
-        message: `Your demo with ${companyName} is scheduled for ${formatDate(date)} at ${formatTime(time)}. Get ready to showcase!`
+        message: `Your demo with ${companyName} is scheduled for ${formatDate(
+          date
+        )} at ${formatTime(time)}. Get ready to showcase!`,
       },
       negotiation: {
         icon: "🤝",
         title: "Negotiation Meeting Set!",
-        message: `Negotiation with ${companyName} confirmed for ${formatDate(date)} at ${formatTime(time)}. Time to close the deal!`
-      }
+        message: `Negotiation with ${companyName} confirmed for ${formatDate(
+          date
+        )} at ${formatTime(time)}. Time to close the deal!`,
+      },
     };
 
     setToast({ ...messages[type], type });
+    setTimeout(() => setToast(null), 3000);
+  };
+
+  // ✅ Toast specifically for call status
+  const showCallToast = (type, companyName, detail) => {
+    const messages = {
+      calling: {
+        icon: "📞",
+        title: `Calling ${companyName}...`,
+        message: `Dialing: ${detail}`,
+        type: "calling",
+      },
+      error: {
+        icon: "❌",
+        title: "Call Failed",
+        message: detail,
+        type: "error",
+      },
+    };
+
+    setToast(messages[type]);
     setTimeout(() => setToast(null), 3000);
   };
 
@@ -171,9 +230,7 @@ export default function Followups({
     <div className="followups">
       <div className="followups-header">
         <h2>{title}</h2>
-        <span className="followup-count">
-          {followups.length} pending
-        </span>
+        <span className="followup-count">{followups.length} pending</span>
       </div>
 
       <div className="followup-list">
@@ -183,11 +240,10 @@ export default function Followups({
           followups.map((item) => {
             const id = item.recommendation_id || item.id;
             const expanded = expandedId === id;
-            
-            // ✅ Better detection: check if text is actually long
+
             const noteText = item.note || "No details available.";
-            const noteLines = noteText.split('\n').length;
-            const isLongText = noteText.length > 150 || noteLines > 3; // ✅ Increased threshold
+            const noteLines = noteText.split("\n").length;
+            const isLongText = noteText.length > 150 || noteLines > 3;
 
             const demoBooking = demoBookings.find(
               (b) => Number(b.customer_id) === Number(item.customer_id)
@@ -196,6 +252,9 @@ export default function Followups({
             const negotiationBooking = negotiationBookings.find(
               (b) => Number(b.customer_id) === Number(item.customer_id)
             );
+
+            // ✅ Check if this customer is currently being called
+            const isCalling = callingId === item.customer_id;
 
             return (
               <div key={id} className="followup-card">
@@ -221,7 +280,11 @@ export default function Followups({
                   </span>
                 </div>
 
-                <p className={expanded ? "followup-note expanded" : "followup-note"}>
+                <p
+                  className={
+                    expanded ? "followup-note expanded" : "followup-note"
+                  }
+                >
                   {noteText}
                 </p>
 
@@ -237,9 +300,23 @@ export default function Followups({
 
                   <div className="followup-actions">
 
+                    {/* ✅ Call Button - Now fetches number and opens dialer */}
                     {item.action === "CALL" && (
-                      <button className="followup-action-btn call">
-                        📞 Call
+                      <button
+                        className="followup-action-btn call"
+                        onClick={() =>
+                          handleCall(
+                            item.customer_id,
+                            item.company_name || item.company
+                          )
+                        }
+                        disabled={isCalling}
+                        style={{
+                          opacity: isCalling ? 0.7 : 1,
+                          cursor: isCalling ? "not-allowed" : "pointer",
+                        }}
+                      >
+                        {isCalling ? "⏳ Fetching number..." : "📞 Call"}
                       </button>
                     )}
 
@@ -250,8 +327,8 @@ export default function Followups({
                     )}
 
                     {item.action === "MEETING" &&
-                      item.meeting_type === "DEMO" && (
-                      demoBooking ? (
+                      item.meeting_type === "DEMO" &&
+                      (demoBooking ? (
                         <button
                           className="followup-action-btn booked"
                           onClick={() => {
@@ -275,12 +352,11 @@ export default function Followups({
                         >
                           📅 Schedule Demo
                         </button>
-                      )
-                    )}
+                      ))}
 
                     {item.action === "MEETING" &&
-                      item.meeting_type === "NEGOTIATION" && (
-                      negotiationBooking ? (
+                      item.meeting_type === "NEGOTIATION" &&
+                      (negotiationBooking ? (
                         <button
                           className="followup-action-btn booked"
                           onClick={() => {
@@ -304,9 +380,7 @@ export default function Followups({
                         >
                           🤝 Schedule Negotiation
                         </button>
-                      )
-                    )}
-
+                      ))}
                   </div>
                 </div>
               </div>
@@ -315,8 +389,25 @@ export default function Followups({
         )}
       </div>
 
+      {/* ✅ Toast Notification */}
       {toast && (
-        <div className={`custom-toast ${toast.type}`}>
+        <div
+          className={`custom-toast ${toast.type}`}
+          style={{
+            backgroundColor:
+              toast.type === "error"
+                ? "#fee2e2"
+                : toast.type === "calling"
+                ? "#dbeafe"
+                : undefined,
+            borderColor:
+              toast.type === "error"
+                ? "#dc2626"
+                : toast.type === "calling"
+                ? "#3b82f6"
+                : undefined,
+          }}
+        >
           <div className="custom-toast-icon">{toast.icon}</div>
           <div className="custom-toast-content">
             <div className="custom-toast-title">{toast.title}</div>
@@ -374,7 +465,9 @@ export default function Followups({
                 : "🤝 Negotiation Meeting Details"}
             </h3>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+            <div
+              style={{ display: "flex", flexDirection: "column", gap: "12px" }}
+            >
               <div style={detailRow}>
                 <span style={detailLabel}>Company</span>
                 <span style={detailValue}>
@@ -442,7 +535,7 @@ export default function Followups({
         onSuccess={(bookingData) => {
           fetchBookings();
           showToast(
-            'demo',
+            "demo",
             bookingData.company_name || demoCustomer?.company,
             bookingData.demo_date,
             bookingData.demo_time
@@ -458,7 +551,7 @@ export default function Followups({
         onSuccess={(bookingData) => {
           fetchBookings();
           showToast(
-            'negotiation',
+            "negotiation",
             bookingData.company_name || negotiationCustomer?.company,
             bookingData.negotiation_date,
             bookingData.negotiation_time
